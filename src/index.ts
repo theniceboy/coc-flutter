@@ -7,28 +7,28 @@ import { LspServer } from './server/lsp';
 import { SourceList } from './sources';
 
 export async function activate(context: ExtensionContext): Promise<void> {
-  const config = workspace.getConfiguration('flutter');
-  const isEnabled = config.get<boolean>('enabled', true);
+	const config = workspace.getConfiguration('flutter');
+	const isEnabled = config.get<boolean>('enabled', true);
 
-  // if not enabled then return
-  if (!isEnabled) {
-    return;
-  }
+	// if not enabled then return
+	if (!isEnabled) {
+		return;
+	}
 
-  context.subscriptions.push(logger);
-  // logger init
-  logger.init(config.get<logLevel>('trace.server', 'off'));
+	context.subscriptions.push(logger);
+	// logger init
+	logger.init(config.get<logLevel>('trace.server', 'off'));
 
-  // register lsp server
-  const lsp = new LspServer();
-  context.subscriptions.push(lsp);
+	// register lsp server
+	const lsp = new LspServer();
+	context.subscriptions.push(lsp);
 
-  // register commands
-  context.subscriptions.push(new Commands(lsp));
+	// register commands
+	context.subscriptions.push(new Commands(lsp));
 
-  // register providers
-  context.subscriptions.push(new Providers());
+	// register providers
+	context.subscriptions.push(new Providers());
 
-  // register sources
-  context.subscriptions.push(new SourceList());
+	// register sources
+	context.subscriptions.push(new SourceList());
 }

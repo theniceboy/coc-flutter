@@ -5,8 +5,8 @@ import { LspServer } from '../server/lsp';
 import { SuperCommand } from './super';
 
 export class Commands extends Dispose {
-  constructor(lsp: LspServer) {
-    super();
-    this.push(new Dev(), new Global(), new SuperCommand(lsp));
-  }
+	constructor(lsp: LspServer) {
+		super();
+		this.push(new Dev(), new Global(), new SuperCommand(lsp));
+	}
 }
