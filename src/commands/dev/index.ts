@@ -1,11 +1,14 @@
 import { commands, Disposable } from 'coc.nvim';
 
 import { devServer } from '../../server/dev';
+import os from 'os';
 import { Dispose } from '../../util/dispose';
 import { opener } from '../../util/opener';
 import { notification } from '../../lib/notification';
 import { logger } from '../../util/logger';
 import { cmdPrefix } from '../../util/constant';
+import { getFlutterWorkspaceFolder } from '../../util/fs';
+import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
 
 const log = logger.getlog('dev-command');
 
@@ -108,6 +111,7 @@ export const cmds: Record<string, DCmd> = {
 export class Dev extends Dispose {
 	private profilerUrl: string | undefined;
 	private cmds: Disposable[] = [];
+	private devtoolsTask: ChildProcessWithoutNullStreams | undefined;
 
 	constructor() {
 		super();
@@ -126,6 +130,7 @@ export class Dev extends Dispose {
 			);
 		});
 		this.push(devServer);
+		devServer.openDevLog();
 		log('register dev command');
 	}
 
@@ -193,7 +198,7 @@ export class Dev extends Dispose {
 	private onStdout = (lines: string[]) => {
 		lines.forEach(line => {
 			const m = line.match(
-				/^\s*An Observatory debugger and profiler on .* is available at:\s*(https?:\/\/127\.0\.0\.1:\d+\/.+\/)$/,
+				/^\s*An Observatory debugger and profiler on .* is available at:\s*https?(:\/\/127\.0\.0\.1:\d+\/.+\/)$/,
 			);
 			if (m) {
 				this.profilerUrl = m[1];
@@ -220,13 +225,41 @@ export class Dev extends Dispose {
 		};
 	}
 
-	openProfiler() {
+	get devToolsRunning(): boolean {
+		return !!this.devtoolsTask && this.devtoolsTask.stdin.writable;
+	}
+
+	async openProfiler() {
 		if (!this.profilerUrl) {
 			return;
 		}
+		notification.show('opening profiler');
 		if (devServer.state) {
+			if (!this.devToolsRunning) {
+				notification.show('should open profiler');
+				const workspaceFolder = await getFlutterWorkspaceFolder();
+				if (!workspaceFolder) {
+					notification.show('Flutter project workspaceFolder not found!');
+					return false;
+				}
+				this.devtoolsTask = spawn('flutter', ['pub', 'global', 'run', 'devtools'], {
+					cwd: workspaceFolder,
+					detached: false,
+					shell: os.platform() === 'win32' ? true : undefined,
+				});
+				this.devtoolsTask.on('exit', () => {
+					this.devtoolsTask = undefined;
+				});
+				this.devtoolsTask.on('error', () => {
+					this.devtoolsTask = undefined;
+				});
+				this.devtoolsTask.on('message', (message, sendhandle) => {
+					notification.show(`${message}`);
+				});
+			}
+			const url = 'http://127.0.0.1:9100/#/?uri=ws' + encodeURIComponent(this.profilerUrl);
 			try {
-				return opener(this.profilerUrl);
+				return opener(url);
 			} catch (error) {
 				log(`Open browser fail: ${error.message}\n${error.stack}`);
 				notification.show(`Open browser fail: ${error.message || error}`);
