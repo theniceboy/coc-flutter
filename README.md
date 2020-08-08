@@ -1,11 +1,11 @@
-# ![](https://flutter.dev/images/favicon.png) coc-flutter
+# ![](https://flutter.dev/images/favicon.png) coc-flutter-tools
 
 Flutter support for Neovim
 
 ![2019-10-07 23-31-40 2019-10-08 00_04_07](https://user-images.githubusercontent.com/5492542/66328510-58a6c480-e95f-11e9-95ca-0b4ed7c8e83f.gif)
 
 ## What is this?
-`coc-flutter-tools` if a fork of [coc-flutter](https://github.com/iamcco/coc-flutter) maintained actively.
+`coc-flutter-tools` if an active fork of [coc-flutter](https://github.com/iamcco/coc-flutter), that fixes bugs and adds new features.
 
 Big thanks to the author of `coc-flutter` [@iamcco](https://github.com/iamcco)
 
@@ -14,46 +14,42 @@ Features of this fork:
 
 ## Features
 
-- LSP features is power by [analysis_server](https://github.com/dart-lang/sdk/blob/master/pkg/analysis_server/tool/lsp_spec/README.md)
-  - autocomplete
-  - diagnostics
-  - format
-  - rename
-  - hover document
-  - signature help
-  - go to definition
-  - go to implementation
-  - go to references
-  - document highlight
-  - document symbol
-  - code actions
-  - [more detail](https://github.com/dart-lang/sdk/blob/master/pkg/analysis_server/tool/lsp_spec/README.md)
-    > need flutter sdk and add to `PATH` environment
-- Automatically finds SDKs from PATH
-- Automatic hot reloads on save
-- Automatically run `flutter pub get` when `pubspec.yaml` change
-- Support flutter dev server
-- Snippet enhance `flutter.provider.enableSnippet`
-- Devices List
-- Emulators List
+> Requires the Flutter SDK path to be in the `PATH` environment variable
+- LSP features (power by [analysis_server](https://github.com/dart-lang/sdk/blob/master/pkg/analysis_server/tool/lsp_spec/README.md))
+  - Auto-completion
+  - Diagnostics
+  - Auto-formatting
+  - Renaming elements
+  - Hovering support
+  - Signature help
+  - Jumping to definitions/implementations/references
+  - Highlighting
+  - Document symbols
+  - Code actions
+  - [More detail](https://github.com/dart-lang/sdk/blob/master/pkg/analysis_server/tool/lsp_spec/README.md)
+- Automatic hot reloading on save
+- Automatically run `flutter pub get` on `pubspec.yaml` changes
+- Flutter Dev Server support
+- Snippets (enable with `flutter.provider.enableSnippet`)
+- Device/Emulator List
 
-## Install
+## Installation
 
-`:CocInstall coc-flutter`
+`:CocInstall coc-flutter-tools`
 
-> **NOTE**: install `dart-vim-plugin` plugin if your (neo)vim detect filetype incorrect
+> **NOTE**: The [dart-vim-plugin](https://github.com/dart-lang/dart-vim-plugin) plugin is recommended (for filetype detection and syntax highlighting)
 
 ## coc-list sources
 
-- FlutterDevices
+- Flutter Devices
   > `:CocList FlutterDevices`
-- FlutterEmulators
+- Flutter Emulators
   > `:CocList FlutterEmulators`
 
 ## Settings
 
 - `flutter.trace.server` Trace level of log, default: `off`
-- `flutter.enabled` Enable coc-flutter extension, default: `true`
+- `flutter.enabled` Enables `coc-flutter-tools`, default: `true`
 - `flutter.lsp.debug` Enable debug for language server, default: `false`
 - `flutter.lsp.initialization.onlyAnalyzeProjectsWithOpenFiles`: default: `false`
   > When set to true, analysis will only be performed for projects that have open files rather than the root workspace folder.
@@ -77,6 +73,13 @@ Features of this fork:
 
 **Enable format on save**:
 
+If you have [dart-vim-plugin](https://github.com/dart-lang/dart-vim-plugin) install, put this in your vimrc:
+```vim
+let g:dart_format_on_save = 1
+```
+
+Alternatively, you may use coc-settings.
+
 ```jsonc
 "coc.preferences.formatOnSaveFiletypes": [
   "dart"
@@ -85,20 +88,19 @@ Features of this fork:
 
 ## Code Actions
 
-Add below config mapping
-
-> this config should be in the coc.nvim README
+`coc.nvim` provides code actions. To enable them, add the following configuration in your vimrc
+> this can also be found in `coc.nvim` README
 
 ``` vim
 xmap <leader>a  <Plug>(coc-codeaction-selected)
 nmap <leader>a  <Plug>(coc-codeaction-selected)
 ```
 
-Applying codeAction to the selected region.
+To show code actions on selected areas:
 
-Example: `<leader>aap` for current paragraph, `<leader>aw` for the current word
+- `<leader>aap` for current paragraph, `<leader>aw` for the current word
 
-Then you will see action list:
+Then you will see a list of code actions:
 
 - Wrap with Widget
 - Wrap with Center
@@ -106,7 +108,7 @@ Then you will see action list:
 
 ## Commands
 
-Open flutter only commands list: `CocList --input=flutter commands`
+Get a list of flutter related commands: `CocList --input=flutter commands`
 
 **Global Commands**:
 
@@ -125,7 +127,7 @@ Open flutter only commands list: `CocList --input=flutter commands`
 
 **Dev Server Commands**:
 
-> available when dev server running
+> These commands will only be available when the Flutter Dev Server is running (i.e after you run `flutter run`)
 
 - `flutter.dev.quit` Quit server
 - `flutter.dev.detach` Detach server
@@ -133,7 +135,7 @@ Open flutter only commands list: `CocList --input=flutter commands`
 - `flutter.dev.hotRestart` Hot restart
 - `flutter.dev.screenshot` To save a screenshot to flutter.png
 - `flutter.dev.openDevLog` Open flutter dev server log
-- `flutter.dev.openProfiler` Open observatory debugger and profiler web page
+- `flutter.dev.openProfiler` Open the [DevTools](https://flutter.dev/docs/development/tools/devtools/overview) in the browser
 - `flutter.dev.debugDumpAPP` You can dump the widget hierarchy of the app (debugDumpApp)
 - `flutter.dev.elevationChecker` To toggle the elevation checker
 - `flutter.dev.debugDumpLayerTree` For layers (debugDumpLayerTree)
