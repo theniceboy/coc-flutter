@@ -51,7 +51,7 @@ Features of this fork:
 - `flutter.trace.server` Trace level of log, default: `off`
 - `flutter.enabled` Enables `coc-flutter-tools`, default: `true`
 - `flutter.lsp.debug` Enable debug for language server, default: `false`
-- `flutter.lsp.initialization.onlyAnalyzeProjectsWithOpenFiles`: default: `false`
+- `flutter.lsp.initialization.onlyAnalyzeProjectsWithOpenFiles`: default: `true`
   > When set to true, analysis will only be performed for projects that have open files rather than the root workspace folder.
 - `flutter.lsp.initialization.suggestFromUnimportedLibraries`: default: `true`
   > When set to false, completion will not include synbols that are not already imported into the current file
