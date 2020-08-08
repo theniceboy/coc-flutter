@@ -1,182 +1,185 @@
 {
-  "name": "coc-flutter",
-  "version": "1.5.1",
-  "description": "flutter support for (Neo)vim",
-  "author": "iamcco <ooiss@qq.com>",
-  "license": "MIT",
-  "main": "out/index.js",
-  "keywords": [
-    "coc.nvim",
-    "flutter",
-    "lsp",
-    "dart"
-  ],
-  "engines": {
-    "coc": "^0.0.74"
-  },
-  "scripts": {
-    "clean": "rm -rf ./out",
-    "watch": "webpack --watch",
-    "build": "webpack",
-    "lint": "eslint --fix ./src/**/*.ts",
-    "prepare": "npm run clean && npm run build"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run lint",
-      "pre-push": "npm run lint"
-    }
-  },
-  "activationEvents": [
-    "workspaceContains:pubspec.yaml",
-    "onLanguage:dart",
-    "onLanguage:yaml",
-    "onCommand:flutter.run",
-    "onCommand:flutter.doctor",
-    "onCommand:flutter.upgrade",
-    "onCommand:flutter.create",
-    "onCommand:flutter.pub.get",
-    "onCommand:flutter.devices",
-    "onCommand:flutter.emulators"
-  ],
-  "contributes": {
-    "rootPatterns": [
-      {
-        "filetype": "dart",
-        "patterns": [
-          "pubspec.yaml"
-        ]
-      }
-    ],
-    "configuration": {
-      "type": "object",
-      "title": "flutter configuration",
-      "properties": {
-        "flutter.trace.server": {
-          "type": "string",
-          "default": "off",
-          "enum": [
-            "off",
-            "messages",
-            "verbose"
-          ],
-          "description": "Trace level of log"
-        },
-        "flutter.enabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enable coc-flutter extension"
-        },
-        "flutter.lsp.debug": {
-          "type": "boolean",
-          "default": false,
-          "description": "Enable debug for language server"
-        },
-        "flutter.lsp.initialization.onlyAnalyzeProjectsWithOpenFiles": {
-          "type": "boolean",
-          "default": true,
-          "description": "When set to true, analysis will only be performed for projects that have open files rather than the root workspace folder."
-        },
-        "flutter.lsp.initialization.suggestFromUnimportedLibraries": {
-          "type": "boolean",
-          "default": true,
-          "description": "When set to false, completion will not include synbols that are not already imported into the current file"
-        },
-        "flutter.lsp.initialization.closingLabels": {
-          "type": "boolean",
-          "default": true,
-          "description": "When set to true, dart/textDocument/publishClosingLabels notifications will be sent with information to render editor closing labels."
-        },
-        "flutter.sdk.dart-command": {
-          "type": "string",
-          "default": "",
-          "description": "dart command, leave empty should just work"
-        },
-        "flutter.sdk.dart-lookup": {
-          "type": "string",
-          "default": "",
-          "description": "command to find dart executable location, used to infer dart-sdk location"
-        },
-        "flutter.sdk.flutter-lookup": {
-          "type": "string",
-          "default": "",
-          "description": "command to find flutter executable location, used to infer location of dart-sdk in flutter cache"
-        },
-        "flutter.provider.hot-reload": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enable hot reload after save"
-        },
-        "flutter.provider.enableSnippet": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enable completion item snippet"
-        },
-        "flutter.openDevLogSplitCommand": {
-          "type": "string",
-          "default": "",
-          "description": "Vim command to open dev log window, like: `botright 10split`"
-        },
-        "flutter.workspaceFolder.ignore": {
-          "type": "array",
-          "default": [],
-          "item": "string",
-          "description": "Path start within the list will not treat as workspaceFolder"
-        }
-      }
-    },
-    "commands": [
-      {
-        "command": "flutter.run",
-        "title": "Run flutter server"
-      },
-      {
-        "command": "flutter.attach",
-        "title": "Attach running application"
-      },
-      {
-        "command": "flutter.create",
-        "title": "Create flutter project using: flutter create project-name"
-      },
-      {
-        "command": "flutter.doctor",
-        "title": "flutter doctor"
-      },
-      {
-        "command": "flutter.upgrade",
-        "title": "flutter upgrade"
-      },
-      {
-        "command": "flutter.pub.get",
-        "title": "flutter pub get"
-      },
-      {
-        "command": "flutter.devices",
-        "title": "open devices list"
-      },
-      {
-        "command": "flutter.emulators",
-        "title": "open emulators list"
-      }
-    ]
-  },
-  "devDependencies": {
-    "@types/node": "^12.7.1",
-    "@typescript-eslint/eslint-plugin": "^2.5.0",
-    "@typescript-eslint/parser": "^2.5.0",
-    "coc.nvim": "^0.0.74",
-    "colors": "^1.4.0",
-    "eslint": "^6.6.0",
-    "eslint-config-prettier": "^6.5.0",
-    "eslint-plugin-prettier": "^3.1.1",
-    "fast-glob": "^3.1.0",
-    "husky": "^3.0.9",
-    "prettier": "^1.18.2",
-    "ts-loader": "^6.0.4",
-    "typescript": "^3.5.3",
-    "vscode-languageserver-protocol": "^3.14.1",
-    "webpack": "^4.39.2",
-    "webpack-cli": "^3.3.6",
-    "which": "^2.0.1"
-  }
+	"name": "coc-flutter-tools",
+	"version": "1.0.1",
+	"description": "flutter support for Neovim",
+	"author": "David Chen <weichen2000121@gmail.com>",
+	"license": "MIT",
+	"main": "out/index.js",
+	"keywords": [
+		"coc.nvim",
+		"neovim",
+		"nvim",
+		"flutter",
+		"lsp",
+		"dart"
+	],
+	"engines": {
+		"coc": "^0.0.74"
+	},
+	"scripts": {
+		"clean": "rm -rf ./out",
+		"watch": "webpack --watch",
+		"build": "webpack",
+		"lint": "eslint --fix ./src/**/*.ts",
+		"prepare": "npm run clean && npm run build"
+	},
+	"husky": {
+		"hooks": {
+			"pre-commit": "npm run lint",
+			"pre-push": "npm run lint"
+		}
+	},
+	"activationEvents": [
+		"workspaceContains:pubspec.yaml",
+		"onLanguage:dart",
+		"onLanguage:yaml",
+		"onCommand:flutter.run",
+		"onCommand:flutter.doctor",
+		"onCommand:flutter.upgrade",
+		"onCommand:flutter.create",
+		"onCommand:flutter.pub.get",
+		"onCommand:flutter.devices",
+		"onCommand:flutter.emulators"
+	],
+	"contributes": {
+		"rootPatterns": [
+			{
+				"filetype": "dart",
+				"patterns": [
+					"pubspec.yaml"
+				]
+			}
+		],
+		"configuration": {
+			"type": "object",
+			"title": "flutter configuration",
+			"properties": {
+				"flutter.trace.server": {
+					"type": "string",
+					"default": "off",
+					"enum": [
+						"off",
+						"messages",
+						"verbose"
+					],
+					"description": "Trace level of log"
+				},
+				"flutter.enabled": {
+					"type": "boolean",
+					"default": true,
+					"description": "Enable coc-flutter extension"
+				},
+				"flutter.lsp.debug": {
+					"type": "boolean",
+					"default": false,
+					"description": "Enable debug for language server"
+				},
+				"flutter.lsp.initialization.onlyAnalyzeProjectsWithOpenFiles": {
+					"type": "boolean",
+					"default": true,
+					"description": "When set to true, analysis will only be performed for projects that have open files rather than the root workspace folder."
+				},
+				"flutter.lsp.initialization.suggestFromUnimportedLibraries": {
+					"type": "boolean",
+					"default": true,
+					"description": "When set to false, completion will not include synbols that are not already imported into the current file"
+				},
+				"flutter.lsp.initialization.closingLabels": {
+					"type": "boolean",
+					"default": true,
+					"description": "When set to true, dart/textDocument/publishClosingLabels notifications will be sent with information to render editor closing labels."
+				},
+				"flutter.sdk.dart-command": {
+					"type": "string",
+					"default": "",
+					"description": "dart command, leave empty should just work"
+				},
+				"flutter.sdk.dart-lookup": {
+					"type": "string",
+					"default": "",
+					"description": "command to find dart executable location, used to infer dart-sdk location"
+				},
+				"flutter.sdk.flutter-lookup": {
+					"type": "string",
+					"default": "",
+					"description": "command to find flutter executable location, used to infer location of dart-sdk in flutter cache"
+				},
+				"flutter.provider.hot-reload": {
+					"type": "boolean",
+					"default": true,
+					"description": "Enable hot reload after save"
+				},
+				"flutter.provider.enableSnippet": {
+					"type": "boolean",
+					"default": true,
+					"description": "Enable completion item snippet"
+				},
+				"flutter.openDevLogSplitCommand": {
+					"type": "string",
+					"default": "",
+					"description": "Vim command to open dev log window, like: `botright 10split`"
+				},
+				"flutter.workspaceFolder.ignore": {
+					"type": "array",
+					"default": [],
+					"item": "string",
+					"description": "Path start within the list will not treat as workspaceFolder"
+				}
+			}
+		},
+		"commands": [
+			{
+				"command": "flutter.run",
+				"title": "Run flutter server"
+			},
+			{
+				"command": "flutter.attach",
+				"title": "Attach running application"
+			},
+			{
+				"command": "flutter.create",
+				"title": "Create flutter project using: flutter create project-name"
+			},
+			{
+				"command": "flutter.doctor",
+				"title": "flutter doctor"
+			},
+			{
+				"command": "flutter.upgrade",
+				"title": "flutter upgrade"
+			},
+			{
+				"command": "flutter.pub.get",
+				"title": "flutter pub get"
+			},
+			{
+				"command": "flutter.devices",
+				"title": "open devices list"
+			},
+			{
+				"command": "flutter.emulators",
+				"title": "open emulators list"
+			}
+		]
+	},
+	"devDependencies": {
+		"@types/node": "^12.7.1",
+		"@typescript-eslint/eslint-plugin": "^2.5.0",
+		"@typescript-eslint/parser": "^2.5.0",
+		"coc.nvim": "^0.0.74",
+		"colors": "^1.4.0",
+		"eslint": "^6.6.0",
+		"eslint-config-prettier": "^6.5.0",
+		"eslint-plugin-prettier": "^3.1.1",
+		"fast-glob": "^3.1.0",
+		"husky": "^3.0.9",
+		"prettier": "^1.18.2",
+		"ts-loader": "^6.0.4",
+		"typescript": "^3.5.3",
+		"vscode-languageserver-protocol": "^3.14.1",
+		"webpack": "^4.39.2",
+		"webpack-cli": "^3.3.6",
+		"which": "^2.0.1"
+	},
+	"homepage": "https://github.com/theniceboy/coc-flutter"
 }

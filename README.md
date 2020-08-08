@@ -1,8 +1,16 @@
 # ![](https://flutter.dev/images/favicon.png) coc-flutter
 
-Flutter support for (Neo)vim
+Flutter support for Neovim
 
 ![2019-10-07 23-31-40 2019-10-08 00_04_07](https://user-images.githubusercontent.com/5492542/66328510-58a6c480-e95f-11e9-95ca-0b4ed7c8e83f.gif)
+
+## What is this?
+`coc-flutter-tools` if a fork of [coc-flutter](https://github.com/iamcco/coc-flutter) maintained actively.
+
+Big thanks to the author of `coc-flutter` [@iamcco](https://github.com/iamcco)
+
+Features of this fork:
+- DevTools support
 
 ## Features
 
@@ -149,8 +157,3 @@ the closing labels will be display at end of closing.
 | -------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | <img height="300px" src="https://user-images.githubusercontent.com/5492542/67616073-f0812b00-f806-11e9-8e5c-ac42ab3a293c.png" /> | <img height="300px" src="https://user-images.githubusercontent.com/5492542/67616063-c16ab980-f806-11e9-8522-1c89217096e0.png" /> |
 
-### Buy Me A Coffee ☕️
-
-![btc](https://img.shields.io/keybase/btc/iamcco.svg?style=popout-square)
-
-![image](https://user-images.githubusercontent.com/5492542/42771079-962216b0-8958-11e8-81c0-520363ce1059.png)
