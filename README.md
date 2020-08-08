@@ -5,7 +5,7 @@ Flutter support for Neovim
 ![2019-10-07 23-31-40 2019-10-08 00_04_07](https://user-images.githubusercontent.com/5492542/66328510-58a6c480-e95f-11e9-95ca-0b4ed7c8e83f.gif)
 
 ## What is this?
-`coc-flutter-tools` if an active fork of [coc-flutter](https://github.com/iamcco/coc-flutter), that fixes bugs and adds new features.
+`coc-flutter-tools` is an active fork of [coc-flutter](https://github.com/iamcco/coc-flutter), that fixes bugs and adds new features.
 
 Big thanks to the author of `coc-flutter` [@iamcco](https://github.com/iamcco)
 
@@ -14,7 +14,7 @@ Features of this fork:
 
 ## Features
 
-> Requires the Flutter SDK path to be in the `PATH` environment variable
+> Make sure that you have the Flutter SDK path in the `PATH` environment variable
 - LSP features (power by [analysis_server](https://github.com/dart-lang/sdk/blob/master/pkg/analysis_server/tool/lsp_spec/README.md))
   - Auto-completion
   - Diagnostics
@@ -41,10 +41,8 @@ Features of this fork:
 
 ## coc-list sources
 
-- Flutter Devices
-  > `:CocList FlutterDevices`
-- Flutter Emulators
-  > `:CocList FlutterEmulators`
+- Flutter Devices: `:CocList FlutterDevices`
+- Flutter Emulators: `:CocList FlutterEmulators`
 
 ## Settings
 
