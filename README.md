@@ -1,6 +1,6 @@
 # ![](https://flutter.dev/images/favicon.png) coc-flutter-tools
 
-Flutter support for Neovim
+Flutter support for (Neo)vim
 
 ![2019-10-07 23-31-40 2019-10-08 00_04_07](https://user-images.githubusercontent.com/5492542/66328510-58a6c480-e95f-11e9-95ca-0b4ed7c8e83f.gif)
 
@@ -11,6 +11,8 @@ Big thanks to the author of `coc-flutter` [@iamcco](https://github.com/iamcco)
 
 Features of this fork:
 - DevTools support
+- Better DevLog Notifications
+- UI Path Display (Flutter Outline)
 
 ## Features
 
@@ -55,6 +57,8 @@ Features of this fork:
   > When set to false, completion will not include synbols that are not already imported into the current file
 - [`flutter.lsp.initialization.closingLabels`](#closing-labels): default: `true`
   > When set to true, will display closing labels at end of closing, only neovim support.
+- [`flutter.lsp.initialization.outline`](#outline-ui-path): default: `true`
+  > When set to true, will display the path of the selected UI component on the status bar
 - `flutter.sdk.dart-command` dart command, leave empty should just work, default: `''`
 - `flutter.sdk.dart-lookup` command to find dart executable location, used to infer dart-sdk location, default: `''`
 - `flutter.sdk.flutter-lookup` command to find flutter executable location, used to infer location of dart-sdk in flutter cache: `''`
@@ -148,7 +152,7 @@ Get a list of flutter related commands: `CocList --input=flutter commands`
 
 ### Closing Labels
 
-when `flutter.lsp.initialization.closingLabels` is true,
+when `flutter.lsp.initialization.closingLabels` is set to `true`,
 the closing labels will be display at end of closing.
 
 > this feature only support neovim since vim do not support virtual text
@@ -157,3 +161,6 @@ the closing labels will be display at end of closing.
 | -------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | <img height="300px" src="https://user-images.githubusercontent.com/5492542/67616073-f0812b00-f806-11e9-8e5c-ac42ab3a293c.png" /> | <img height="300px" src="https://user-images.githubusercontent.com/5492542/67616063-c16ab980-f806-11e9-8522-1c89217096e0.png" /> |
 
+
+### Outline (UI Path)
+when `flutter.lsp.initialization.outline` is set to `true`, the path for the UI component under cursor will be shown on the status bar.

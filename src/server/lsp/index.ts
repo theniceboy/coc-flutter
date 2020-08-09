@@ -15,6 +15,7 @@ import { logger } from '../../util/logger';
 import { statusBar } from '../../lib/status';
 import { Dispose } from '../../util/dispose';
 import { ClosingLabels } from './closingLabels';
+import { Outline } from './outline';
 import { SignatureHelpProvider } from './signatureHelp';
 import { completionProvider } from './completionProvider';
 import { codeActionProvider } from './codeActionProvider';
@@ -63,6 +64,7 @@ export class LspServer extends Dispose {
 			onlyAnalyzeProjectsWithOpenFiles: true,
 			suggestFromUnimportedLibraries: true,
 			closingLabels: true,
+			outline: true,
 		});
 
 		/**
@@ -124,9 +126,10 @@ export class LspServer extends Dispose {
 			.onReady()
 			.then(() => {
 				log('analysis server ready!');
-				if (initialization.closingLabels) {
-					// register closing label
-					this.push(new ClosingLabels(client));
+				if (initialization.closingLabels) this.push(new ClosingLabels(client));
+				if (initialization.outline) {
+					this.push(new Outline(client));
+					workspace.nvim.command('autocmd CursorMoved * :CocCommand flutter.updateCursorText');
 				}
 				// FIXME
 				setTimeout(() => {
