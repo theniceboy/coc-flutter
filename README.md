@@ -164,3 +164,4 @@ the closing labels will be display at end of closing.
 
 ### Outline (UI Path)
 when `flutter.lsp.initialization.outline` is set to `true`, the path for the UI component under cursor will be shown on the status bar.
+![Screen Shot 2020-08-09 at 6 25 10 PM](https://user-images.githubusercontent.com/8187501/89730211-575a9280-da6f-11ea-9ad1-73770c1840db.png)
