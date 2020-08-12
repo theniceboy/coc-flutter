@@ -5,6 +5,20 @@ import { Range } from 'vscode-languageserver-protocol';
 
 import { Dispose } from '../../util/dispose';
 
+const verticalLine = '│';
+const horizontalLine = '─';
+const bottomCorner = '└';
+const middleCorner = '├';
+const icons = {
+	TOP_LEVEL_VARIABLE: '\uf93d',
+	CLASS: '\uf0e8 ',
+	FIELD: '\uf93d',
+	CONSTRUCTOR: '\ue624 ',
+	CONSTRUCTOR_INVOCATION: '\ufc2a ',
+	FUNCTION: '\u0192 ',
+	METHOD: '\uf6a6 ',
+};
+
 interface ClientParams_Outline {
 	uri: string;
 	outline: OutlineParams;
@@ -32,6 +46,7 @@ export class Outline extends Dispose {
 	public outlineStrings: Record<string, string[]> = {};
 	public outlineVersions: Record<string, number> = {};
 	public outlineVersions_Rendered: Record<string, number> = {};
+	public renderedOutlineUri = '';
 	public outlineBuffer: any;
 
 	constructor(client: LanguageClient) {
@@ -41,13 +56,20 @@ export class Outline extends Dispose {
 
 	updateOutlineBuffer = async (uri: string) => {
 		console.log(uri, this.outlineVersions[uri], this.outlineVersions_Rendered[uri]);
-		if (this.outlineVersions[uri] == this.outlineVersions_Rendered[uri] && this.outlineVersions[uri] !== undefined)
+		if (
+			this.outlineVersions[uri] == this.outlineVersions_Rendered[uri] &&
+			this.outlineVersions[uri] !== undefined &&
+			uri == this.renderedOutlineUri
+		)
 			return;
-		if (this.outlineBuffer && this.outlineStrings[uri]) {
-			this.outlineVersions_Rendered[uri] = this.outlineVersions[uri];
-			await this.outlineBuffer.setOption('modifiable', true);
+		if (this.outlineBuffer) {
+			this.renderedOutlineUri = uri;
+			let content: string[] = [];
+			if (this.outlineStrings[uri]) {
+				this.outlineVersions_Rendered[uri] = this.outlineVersions[uri];
+				content = this.outlineStrings[uri];
+			}
 			const len = await this.outlineBuffer.length;
-			const content = this.outlineStrings[uri];
 			if (len > content.length) {
 				await this.outlineBuffer.setLines([], {
 					start: 0,
@@ -66,66 +88,78 @@ export class Outline extends Dispose {
 					strictIndexing: false,
 				});
 			}
-			// await this.outlineBuffer.setOption('modifiable', false);
 		}
 	};
 
-	async init(client: LanguageClient) {
-		const { nvim } = workspace;
-		client.onNotification('dart/textDocument/publishOutline', this.onOutline);
-		const updateCursorText = async () => {
-			const cursor = await (await nvim.window).cursor;
-			const path = await nvim.commandOutput('echo expand("%:p")');
-			const uri = `file://${path}`;
-			let outline = this.outlines[uri];
-			if (outline) {
-				this.updateOutlineBuffer(uri);
-				let elementPath = '';
-				let foundChild = true;
-				while (foundChild) {
-					foundChild = false;
-					if (Array.isArray(outline.children) && outline.children.length > 0) {
-						for (const child of outline.children) {
-							const curLine = cursor[0] - 1,
-								curCol = cursor[1];
-							const startLine = child.codeRange.start.line,
-								startCol = child.codeRange.start.character;
-							const endLine = child.codeRange.end.line,
-								endCol = child.codeRange.end.character;
-							if (
-								(curLine > startLine || (curLine == startLine && curCol >= startCol)) &&
-								(curLine < endLine || (curLine == endLine && curCol < endCol))
-							) {
-								outline = child;
-								foundChild = true;
-								break;
-							}
-						}
-					}
-					if (foundChild) {
-						elementPath += ` > ${outline.element.name}`;
-					} else {
+	getUIPathFromCursor(outline: OutlineParams, cursor: number[]) {
+		let elementPath = '';
+		let foundChild = true;
+		while (foundChild) {
+			foundChild = false;
+			if (Array.isArray(outline.children) && outline.children.length > 0) {
+				for (const child of outline.children) {
+					const curLine = cursor[0] - 1,
+						curCol = cursor[1] - 1;
+					const startLine = child.codeRange.start.line,
+						startCol = child.codeRange.start.character;
+					const endLine = child.codeRange.end.line,
+						endCol = child.codeRange.end.character;
+					if (
+						(curLine > startLine || (curLine == startLine && curCol >= startCol)) &&
+						(curLine < endLine || (curLine == endLine && curCol < endCol))
+					) {
+						outline = child;
+						foundChild = true;
 						break;
 					}
 				}
-				statusBar.show(elementPath, false);
 			}
-		};
+			if (foundChild) {
+				elementPath += ` > ${outline.element.name}`;
+			} else {
+				break;
+			}
+		}
+		statusBar.show(elementPath, false);
+	}
+
+	async getCurrentUri() {
+		const path = await workspace.nvim.commandOutput('echo expand("%:p")');
+		return `file://${path}`;
+	}
+
+	async init(client: LanguageClient) {
+		const { nvim } = workspace;
+		console.log('list');
+		console.log(nvim.eventNames());
+		nvim.on('notification', async (...args) => {
+			if (args[0] === 'CocAutocmd' && args[1][0] === 'CursorMoved') {
+				const cursor = args[1][2];
+				const uri = await this.getCurrentUri();
+				const outline = this.outlines[uri];
+				if (outline) {
+					this.getUIPathFromCursor(outline, cursor);
+					this.updateOutlineBuffer(uri);
+				}
+			}
+		});
+		client.onNotification('dart/textDocument/publishOutline', this.onOutline);
 		const outlineBufferName = '__flutter_widget_tree';
-		commands.registerCommand(`${cmdPrefix}.updateCursorText`, updateCursorText);
 		commands.registerCommand(`${cmdPrefix}.openWidgetTree`, async () => {
 			const curWin = await nvim.window;
 			await nvim.command('set splitright');
 			await nvim.command(`30vsplit ${outlineBufferName}`);
 			const win = await nvim.window;
 			await nvim.command('set buftype=nofile');
-			await nvim.command('setlocal nomodifiable');
+			// await nvim.command('setlocal nomodifiable');
 			await nvim.command('setlocal nonumber');
 			await nvim.command('setlocal norelativenumber');
 			await nvim.command('setlocal nowrap');
 			await nvim.call('win_gotoid', [curWin.id]);
 			this.outlineBuffer = await win.buffer;
-			const buf = await win.buffer;
+			const uri = await this.getCurrentUri();
+			this.updateOutlineBuffer(uri);
+			// const buf = await win.buffer;
 			// const r = await nvim.commandOutput('new');
 			// console.log(r);
 		});
@@ -134,19 +168,6 @@ export class Outline extends Dispose {
 	generateOutlineStrings = (uri: string) => {
 		const root = this.outlines[uri];
 		const lines: string[] = [];
-		const verticalLine = '│';
-		const horizontalLine = '─';
-		const bottomCorner = '└';
-		const middleCorner = '├';
-		const icons = {
-			TOP_LEVEL_VARIABLE: '\uf93d',
-			CLASS: '\uf0e8 ',
-			FIELD: '\uf93d',
-			CONSTRUCTOR: '\ue624 ',
-			CONSTRUCTOR_INVOCATION: '\ufc2a ',
-			FUNCTION: '\u0192 ',
-			METHOD: '\uf6a6 ',
-		};
 		const icon_default = '\ue612';
 		function genOutline(outline: OutlineParams, indentStr: string) {
 			let indent = indentStr;

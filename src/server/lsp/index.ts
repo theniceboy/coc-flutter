@@ -129,7 +129,6 @@ export class LspServer extends Dispose {
 				if (initialization.closingLabels) this.push(new ClosingLabels(client));
 				if (initialization.outline) {
 					this.push(new Outline(client));
-					workspace.nvim.command('autocmd CursorMoved * :CocCommand flutter.updateCursorText');
 				}
 				// FIXME
 				setTimeout(() => {
