@@ -155,6 +155,26 @@ export class Outline extends Dispose {
 			await nvim.command('setlocal nonumber');
 			await nvim.command('setlocal norelativenumber');
 			await nvim.command('setlocal nowrap');
+			await nvim.command(
+				`syntax match OutlineLine /^\\(${verticalLine}\\| \\)*\\(${middleCorner}\\|${bottomCorner}\\)\\?/`,
+			);
+			await nvim.command(`highlight default link OutlineLine Comment`);
+			await nvim.command(`syntax match FlutterOutlineFunction /${icons.FUNCTION}/`);
+			await nvim.command(`highlight default link FlutterOutlineFunction Function`);
+			await nvim.command(`syntax match FlutterOutlineType /${icons.FIELD}/`);
+			await nvim.command(`highlight default link FlutterOutlineType Identifier`);
+			await nvim.command(`syntax match FlutterOutlineClass /${icons.CLASS}/`);
+			await nvim.command(`highlight default link FlutterOutlineClass Type`);
+			await nvim.command(`syntax match FlutterOutlineMethod /${icons.METHOD}/`);
+			await nvim.command(`highlight default link FlutterOutlineMethod Function`);
+			await nvim.command(`syntax match FlutterOutlineTopLevelVar /${icons.TOP_LEVEL_VARIABLE}/`);
+			await nvim.command(`highlight default link FlutterOutlineTopLevelVar Identifier`);
+			await nvim.command(`syntax match FlutterOutlineConstructor /${icons.CONSTRUCTOR}/`);
+			await nvim.command(`highlight default link FlutterOutlineConstructor Function`);
+			await nvim.command(`syntax match FlutterOutlineConstructorInvocation /${icons.CONSTRUCTOR_INVOCATION}/`);
+			await nvim.command(`highlight default link FlutterOutlineConstructorInvocation Special`);
+			await nvim.command(`syntax match FlutterOutlineLineNumber /: \\d\\+$/`);
+			await nvim.command(`highlight default link FlutterOutlineLineNumber Number`);
 			await nvim.call('win_gotoid', [curWin.id]);
 			this.outlineBuffer = await win.buffer;
 			const uri = await this.getCurrentUri();
@@ -177,7 +197,7 @@ export class Outline extends Dispose {
 			// icon += ' ';
 			if (Array.isArray(outline.children) && outline.children.length > 0 && outline.folded === true)
 				foldIndicator = '▸ ';
-			lines.push(indent + ' ' + icon + outline.element.name);
+			lines.push(`${indent} ${icon}${outline.element.name}: ${outline.codeRange.start.line}`);
 			const len = indent.length;
 			if (len > 0) {
 				if (indent[len - 1] == middleCorner) {
