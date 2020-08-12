@@ -6,11 +6,11 @@ import { Range } from 'vscode-languageserver-protocol';
 import { Dispose } from '../../util/dispose';
 
 const verticalLine = '│';
-const horizontalLine = '─';
+// const horizontalLine = '─';
 const bottomCorner = '└';
 const middleCorner = '├';
 const icons = {
-	TOP_LEVEL_VARIABLE: '\uf93d',
+	TOP_LEVEL_VARIABLE: '\uf435',
 	CLASS: '\uf0e8 ',
 	FIELD: '\uf93d',
 	CONSTRUCTOR: '\ue624 ',
@@ -177,31 +177,31 @@ export class Outline extends Dispose {
 			// icon += ' ';
 			if (Array.isArray(outline.children) && outline.children.length > 0 && outline.folded === true)
 				foldIndicator = '▸ ';
-			lines.push(indent + icon + outline.element.name);
+			lines.push(indent + ' ' + icon + outline.element.name);
 			const len = indent.length;
-			if (len > 1) {
-				if (indent[len - 2] == middleCorner) {
-					indent = indent.substr(0, len - 2) + verticalLine + ' ';
-				} else if (indent[len - 2] == bottomCorner) {
-					indent = indent.substr(0, len - 2) + '  ';
+			if (len > 0) {
+				if (indent[len - 1] == middleCorner) {
+					indent = indent.substr(0, len - 1) + verticalLine;
+				} else if (indent[len - 1] == bottomCorner) {
+					indent = indent.substr(0, len - 1) + ' ';
 				}
 			}
 			if (Array.isArray(outline.children))
 				if (outline.children.length == 1) {
-					genOutline(outline.children[0], `${indent}  `);
+					genOutline(outline.children[0], `${indent} `);
 				} else if (outline.children.length > 1) {
 					for (let i = 0; i < outline.children.length; ++i) {
 						if (i == outline.children.length - 1) {
 							// indent = indent.substr(0, len - 2) + '  ';
-							genOutline(outline.children[i], `${indent}${bottomCorner}${horizontalLine}`);
+							genOutline(outline.children[i], `${indent}${bottomCorner}`);
 						} else {
-							genOutline(outline.children[i], `${indent}${middleCorner}${horizontalLine}`);
+							genOutline(outline.children[i], `${indent}${middleCorner}`);
 						}
 					}
 				}
 		}
 		if (Array.isArray(root.children) && root.children.length > 0)
-			for (const child of root.children) genOutline(child, ' ');
+			for (const child of root.children) genOutline(child, '');
 		this.outlineStrings[uri] = lines;
 		if (this.outlineVersions[uri] === undefined) {
 			this.outlineVersions[uri] = 0;
