@@ -120,37 +120,38 @@ export class Outline extends Dispose {
 
 	updateOutlineBuffer = async (uri: string, force = false) => {
 		if (
-			(this.outlineVersions[uri] === this.outlineVersions_Rendered[uri] && this.outlineVersions[uri] === undefined) ||
-			uri !== this.renderedOutlineUri ||
-			force
-		)
-			if (this.outlineBuffer) {
-				this.renderedOutlineUri = uri;
-				let content: string[] = [];
-				if (this.outlineStrings[uri]) {
-					this.outlineVersions_Rendered[uri] = this.outlineVersions[uri];
-					content = this.outlineStrings[uri];
-				}
-				const len = await this.outlineBuffer.length;
-				if (len > content.length) {
-					await this.outlineBuffer.setLines([], {
-						start: 0,
-						end: len - 1,
-						strictIndexing: false,
-					});
-					await this.outlineBuffer.setLines(content, {
-						start: 0,
-						end: 0,
-						strictIndexing: false,
-					});
-				} else {
-					await this.outlineBuffer.setLines(content, {
-						start: 0,
-						end: len - 1,
-						strictIndexing: false,
-					});
-				}
+			((this.outlineVersions[uri] === this.outlineVersions_Rendered[uri] && this.outlineVersions[uri] === undefined) ||
+				this.outlineVersions[uri] !== this.outlineVersions_Rendered[uri] ||
+				uri !== this.renderedOutlineUri ||
+				force) &&
+			this.outlineBuffer
+		) {
+			this.renderedOutlineUri = uri;
+			let content: string[] = [];
+			if (this.outlineStrings[uri]) {
+				this.outlineVersions_Rendered[uri] = this.outlineVersions[uri];
+				content = this.outlineStrings[uri];
 			}
+			const len = await this.outlineBuffer.length;
+			if (len > content.length) {
+				await this.outlineBuffer.setLines([], {
+					start: 0,
+					end: len - 1,
+					strictIndexing: false,
+				});
+				await this.outlineBuffer.setLines(content, {
+					start: 0,
+					end: 0,
+					strictIndexing: false,
+				});
+			} else {
+				await this.outlineBuffer.setLines(content, {
+					start: 0,
+					end: len - 1,
+					strictIndexing: false,
+				});
+			}
+		}
 		const windows = await workspace.nvim.windows;
 		if (
 			this.curOutlineItem !== undefined &&
