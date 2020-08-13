@@ -169,6 +169,10 @@
 			{
 				"command": "flutter.emulators",
 				"title": "open emulators list"
+			},
+			{
+				"command": "flutter.outline",
+				"title": "Opens a side panel that shows real time the flutter outline"
 			}
 		]
 	},
