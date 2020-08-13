@@ -11,7 +11,7 @@ Big thanks to the author of `coc-flutter` [@iamcco](https://github.com/iamcco)
 
 Features of this fork:
 - DevTools support
-- Better DevLog Notifications
+- Better DevLog Notifications (Notification Filtering)
 - UI Path Display
 - Flutter Outline Panel
 
@@ -27,6 +27,7 @@ Features of this fork:
   - Signature help
   - Jumping to definitions/implementations/references
   - Highlighting
+  - Widget trees (flutter outline)
   - Document symbols
   - Code actions
   - [More detail](https://github.com/dart-lang/sdk/blob/master/pkg/analysis_server/tool/lsp_spec/README.md)
@@ -50,7 +51,6 @@ Features of this fork:
 ## Settings
 
 - `flutter.enabled` Enables `coc-flutter-tools`, default: `true`
-- `flutter.lsp.debug` Enable debug for language server, default: `false`
 - `flutter.lsp.initialization.onlyAnalyzeProjectsWithOpenFiles`: default: `true`
   > When set to true, analysis will only be performed for projects that have open files rather than the root workspace folder.
 - `flutter.lsp.initialization.suggestFromUnimportedLibraries`: default: `true`
