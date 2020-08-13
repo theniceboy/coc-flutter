@@ -12,7 +12,8 @@ Big thanks to the author of `coc-flutter` [@iamcco](https://github.com/iamcco)
 Features of this fork:
 - DevTools support
 - Better DevLog Notifications
-- UI Path Display (Flutter Outline)
+- UI Path Display
+- Flutter Outline Panel
 
 ## Features
 
@@ -48,7 +49,6 @@ Features of this fork:
 
 ## Settings
 
-- `flutter.trace.server` Trace level of log, default: `off`
 - `flutter.enabled` Enables `coc-flutter-tools`, default: `true`
 - `flutter.lsp.debug` Enable debug for language server, default: `false`
 - `flutter.lsp.initialization.onlyAnalyzeProjectsWithOpenFiles`: default: `true`
@@ -57,7 +57,7 @@ Features of this fork:
   > When set to false, completion will not include synbols that are not already imported into the current file
 - [`flutter.lsp.initialization.closingLabels`](#closing-labels): default: `true`
   > When set to true, will display closing labels at end of closing, only neovim support.
-- [`flutter.lsp.initialization.outline`](#outline-ui-path): default: `true`
+- [`flutter.UIPath`](#ui-path): default: `true`
   > When set to true, will display the path of the selected UI component on the status bar
 - `flutter.sdk.dart-command` dart command, leave empty should just work, default: `''`
 - `flutter.sdk.dart-lookup` command to find dart executable location, used to infer dart-sdk location, default: `''`
@@ -122,6 +122,7 @@ Get a list of flutter related commands: `CocList --input=flutter commands`
 - `flutter.pub.get` Run: `flutter pub get`
 - `flutter.devices` open devices list
 - `flutter.emulators` open emulators list
+- `flutter.outline` opens up the outline side-panel
 
 **LSP Commands**
 
@@ -162,6 +163,6 @@ the closing labels will be display at end of closing.
 | <img height="300px" src="https://user-images.githubusercontent.com/5492542/67616073-f0812b00-f806-11e9-8e5c-ac42ab3a293c.png" /> | <img height="300px" src="https://user-images.githubusercontent.com/5492542/67616063-c16ab980-f806-11e9-8522-1c89217096e0.png" /> |
 
 
-### Outline (UI Path)
-when `flutter.lsp.initialization.outline` is set to `true`, the path for the UI component under cursor will be shown on the status bar.
+### UI Path
+when `flutter.UIPath` is set to `true`, the path for the UI component under cursor will be shown on the status bar.
 ![Screen Shot 2020-08-09 at 6 25 10 PM](https://user-images.githubusercontent.com/8187501/89730211-575a9280-da6f-11ea-9ad1-73770c1840db.png)

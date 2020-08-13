@@ -63,10 +63,13 @@ export class Outline extends Dispose {
 	public outlineBuffer: any;
 	public curOutlineItem: OutlineParams | undefined;
 	public highlightIds: number[] = [];
+	public showPath: boolean | undefined;
 
 	constructor(client: LanguageClient) {
 		super();
 		this.init(client);
+		const config = workspace.getConfiguration('flutter');
+		this.showPath = config.get<boolean>('UIPath', true);
 	}
 
 	generateOutlineStrings = (uri: string) => {
@@ -226,19 +229,20 @@ export class Outline extends Dispose {
 				const uri = await this.getCurrentUri();
 				const outline = this.outlines[uri];
 				if (outline) {
-					this.getUIPathFromCursor(outline, cursor);
+					if (this.showPath) this.getUIPathFromCursor(outline, cursor);
 					this.updateOutlineBuffer(uri);
 				}
 			}
 		});
 		client.onNotification('dart/textDocument/publishOutline', this.onOutline);
-		commands.registerCommand(`${cmdPrefix}.openWidgetTree`, async () => {
+		commands.registerCommand(`${cmdPrefix}.outline`, async () => {
 			const curWin = await nvim.window;
 			await nvim.command('set splitright');
 			await nvim.command(`30vsplit ${outlineBufferName}`);
 			const win = await nvim.window;
 			await nvim.command('set buftype=nofile');
 			// await nvim.command('setlocal nomodifiable');
+			await nvim.command('setlocal nocursorline');
 			await nvim.command('setlocal nonumber');
 			await nvim.command('setlocal norelativenumber');
 			await nvim.command('setlocal nowrap');
