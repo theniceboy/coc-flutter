@@ -224,13 +224,33 @@ export class Outline extends Dispose {
 	async init(client: LanguageClient) {
 		const { nvim } = workspace;
 		nvim.on('notification', async (...args) => {
-			if (args[0] === 'CocAutocmd' && args[1][0] === 'CursorMoved') {
-				const cursor = args[1][2];
-				const uri = await this.getCurrentUri();
-				const outline = this.outlines[uri];
-				if (outline) {
-					if (this.showPath) this.getUIPathFromCursor(outline, cursor);
-					this.updateOutlineBuffer(uri);
+			if (args[0] === 'CocAutocmd') {
+				if (args[1][0] === 'CursorMoved') {
+					const cursor = args[1][2];
+					const uri = await this.getCurrentUri();
+					const outline = this.outlines[uri];
+					if (outline) {
+						if (this.showPath) this.getUIPathFromCursor(outline, cursor);
+						this.updateOutlineBuffer(uri);
+					}
+				} else if (args[1][0] === 'BufEnter' && Number.isInteger(args[1][1])) {
+					if (this.outlineBuffer && args[1][1] === this.outlineBuffer.id) {
+						const wins = await nvim.windows;
+						if (Array.isArray(wins)) {
+							if (wins.length === 1) {
+								nvim.command('q');
+							} else {
+								const curWin = await nvim.window;
+								const curTab = await curWin.tabpage;
+								let winTabCount = 0;
+								for (const win of wins) {
+									const tab = await win.tabpage;
+									if ((await tab.number) === (await curTab.number)) winTabCount += 1;
+								}
+								if (winTabCount === 1) curWin.close(true);
+							}
+						}
+					}
 				}
 			}
 		});
