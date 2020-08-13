@@ -1,7 +1,7 @@
 import { commands, LanguageClient, workspace } from 'coc.nvim';
 import { statusBar } from '../../lib/status';
 import { cmdPrefix } from '../../util/constant';
-import { Range } from 'vscode-languageserver-protocol';
+import { Range, Position } from 'vscode-languageserver-protocol';
 
 import { Dispose } from '../../util/dispose';
 
@@ -18,6 +18,16 @@ const icons = {
 	FUNCTION: '\u0192 ',
 	METHOD: '\uf6a6 ',
 };
+const outlineBufferName = '__flutter_widget_tree';
+
+function ucs2ToBinaryString(str) {
+	const escstr = encodeURIComponent(str);
+	const binstr = escstr.replace(/%([0-9A-F]{2})/gi, function(match, hex) {
+		const i = parseInt(hex, 16);
+		return String.fromCharCode(i);
+	});
+	return binstr;
+}
 
 interface ClientParams_Outline {
 	uri: string;
@@ -30,6 +40,9 @@ interface OutlineParams {
 	codeRange: Range;
 	children: OutlineParams[];
 	folded: boolean;
+	lineNumber: number | undefined;
+	startCol: number | undefined;
+	endCol: number | undefined;
 }
 
 interface ElementParams {
@@ -48,45 +61,120 @@ export class Outline extends Dispose {
 	public outlineVersions_Rendered: Record<string, number> = {};
 	public renderedOutlineUri = '';
 	public outlineBuffer: any;
+	public curOutlineItem: OutlineParams | undefined;
+	public highlightIds: number[] = [];
 
 	constructor(client: LanguageClient) {
 		super();
 		this.init(client);
 	}
 
-	updateOutlineBuffer = async (uri: string) => {
-		console.log(uri, this.outlineVersions[uri], this.outlineVersions_Rendered[uri]);
-		if (
-			this.outlineVersions[uri] == this.outlineVersions_Rendered[uri] &&
-			this.outlineVersions[uri] !== undefined &&
-			uri == this.renderedOutlineUri
-		)
-			return;
-		if (this.outlineBuffer) {
-			this.renderedOutlineUri = uri;
-			let content: string[] = [];
-			if (this.outlineStrings[uri]) {
-				this.outlineVersions_Rendered[uri] = this.outlineVersions[uri];
-				content = this.outlineStrings[uri];
+	generateOutlineStrings = (uri: string) => {
+		const root = this.outlines[uri];
+		const lines: string[] = [];
+		const icon_default = '\ue612';
+		function genOutline(outline: OutlineParams, indentStr: string) {
+			let indent = indentStr;
+			let foldIndicator = '  ';
+			let icon = icons[outline.element.kind];
+			if (icon === undefined) icon = icon_default;
+			// icon += ' ';
+			if (Array.isArray(outline.children) && outline.children.length > 0 && outline.folded === true)
+				foldIndicator = '▸ ';
+			const newLine = `${indent} ${icon}${outline.element.name}: ${outline.codeRange.start.line}`;
+			outline.lineNumber = lines.length;
+			outline.startCol = ucs2ToBinaryString(indent).length;
+			outline.endCol = ucs2ToBinaryString(newLine).length;
+			lines.push(newLine);
+			const len = indent.length;
+			if (len > 0) {
+				if (indent[len - 1] == middleCorner) {
+					indent = indent.substr(0, len - 1) + verticalLine;
+				} else if (indent[len - 1] == bottomCorner) {
+					indent = indent.substr(0, len - 1) + ' ';
+				}
 			}
-			const len = await this.outlineBuffer.length;
-			if (len > content.length) {
-				await this.outlineBuffer.setLines([], {
-					start: 0,
-					end: len - 1,
-				});
-				// console.log(this.outlineStrings[uri]);
-				await this.outlineBuffer.setLines(content, {
-					start: 0,
-					end: 0,
-					strictIndexing: false,
-				});
-			} else {
-				await this.outlineBuffer.setLines(content, {
-					start: 0,
-					end: len - 1,
-					strictIndexing: false,
-				});
+			if (Array.isArray(outline.children))
+				if (outline.children.length == 1) {
+					genOutline(outline.children[0], `${indent} `);
+				} else if (outline.children.length > 1) {
+					for (let i = 0; i < outline.children.length; ++i) {
+						if (i == outline.children.length - 1) {
+							// indent = indent.substr(0, len - 2) + '  ';
+							genOutline(outline.children[i], `${indent}${bottomCorner}`);
+						} else {
+							genOutline(outline.children[i], `${indent}${middleCorner}`);
+						}
+					}
+				}
+		}
+		if (Array.isArray(root.children) && root.children.length > 0)
+			for (const child of root.children) genOutline(child, '');
+		this.outlineStrings[uri] = lines;
+		if (this.outlineVersions[uri] === undefined) {
+			this.outlineVersions[uri] = 0;
+		} else {
+			this.outlineVersions[uri] += 1;
+		}
+	};
+
+	updateOutlineBuffer = async (uri: string, force = false) => {
+		if (
+			(this.outlineVersions[uri] === this.outlineVersions_Rendered[uri] && this.outlineVersions[uri] === undefined) ||
+			uri !== this.renderedOutlineUri ||
+			force
+		)
+			if (this.outlineBuffer) {
+				this.renderedOutlineUri = uri;
+				let content: string[] = [];
+				if (this.outlineStrings[uri]) {
+					this.outlineVersions_Rendered[uri] = this.outlineVersions[uri];
+					content = this.outlineStrings[uri];
+				}
+				const len = await this.outlineBuffer.length;
+				if (len > content.length) {
+					await this.outlineBuffer.setLines([], {
+						start: 0,
+						end: len - 1,
+						strictIndexing: false,
+					});
+					await this.outlineBuffer.setLines(content, {
+						start: 0,
+						end: 0,
+						strictIndexing: false,
+					});
+				} else {
+					await this.outlineBuffer.setLines(content, {
+						start: 0,
+						end: len - 1,
+						strictIndexing: false,
+					});
+				}
+			}
+		const windows = await workspace.nvim.windows;
+		if (
+			this.curOutlineItem !== undefined &&
+			this.outlineBuffer !== undefined &&
+			this.curOutlineItem.lineNumber !== undefined &&
+			this.curOutlineItem.startCol !== undefined &&
+			this.curOutlineItem.endCol !== undefined
+		) {
+			// workspace.nvim.pauseNotification();
+			// workspace.nvim.resumeNotification();
+			for (const win of windows) {
+				const buf = await win.buffer;
+				if (buf.id === this.outlineBuffer.id) {
+					buf.clearHighlight();
+					win.setCursor([this.curOutlineItem.lineNumber, 0]).catch(() => {});
+					buf
+						.addHighlight({
+							hlGroup: 'HighlightedOutlineArea',
+							line: this.curOutlineItem.lineNumber,
+							colStart: this.curOutlineItem.startCol,
+							colEnd: this.curOutlineItem.endCol,
+						})
+						.catch(() => {});
+				}
 			}
 		}
 	};
@@ -120,6 +208,7 @@ export class Outline extends Dispose {
 				break;
 			}
 		}
+		this.curOutlineItem = outline;
 		statusBar.show(elementPath, false);
 	}
 
@@ -130,8 +219,6 @@ export class Outline extends Dispose {
 
 	async init(client: LanguageClient) {
 		const { nvim } = workspace;
-		console.log('list');
-		console.log(nvim.eventNames());
 		nvim.on('notification', async (...args) => {
 			if (args[0] === 'CocAutocmd' && args[1][0] === 'CursorMoved') {
 				const cursor = args[1][2];
@@ -144,7 +231,6 @@ export class Outline extends Dispose {
 			}
 		});
 		client.onNotification('dart/textDocument/publishOutline', this.onOutline);
-		const outlineBufferName = '__flutter_widget_tree';
 		commands.registerCommand(`${cmdPrefix}.openWidgetTree`, async () => {
 			const curWin = await nvim.window;
 			await nvim.command('set splitright');
@@ -158,6 +244,7 @@ export class Outline extends Dispose {
 			await nvim.command(
 				`syntax match OutlineLine /^\\(${verticalLine}\\| \\)*\\(${middleCorner}\\|${bottomCorner}\\)\\?/`,
 			);
+			await nvim.command('highlight default link HighlightedOutlineArea IncSearch');
 			await nvim.command(`highlight default link OutlineLine Comment`);
 			await nvim.command(`syntax match FlutterOutlineFunction /${icons.FUNCTION}/`);
 			await nvim.command(`highlight default link FlutterOutlineFunction Function`);
@@ -175,60 +262,13 @@ export class Outline extends Dispose {
 			await nvim.command(`highlight default link FlutterOutlineConstructorInvocation Special`);
 			await nvim.command(`syntax match FlutterOutlineLineNumber /: \\d\\+$/`);
 			await nvim.command(`highlight default link FlutterOutlineLineNumber Number`);
-			await nvim.call('win_gotoid', [curWin.id]);
 			this.outlineBuffer = await win.buffer;
+			await nvim.call('win_gotoid', [curWin.id]);
 			const uri = await this.getCurrentUri();
-			this.updateOutlineBuffer(uri);
+			this.updateOutlineBuffer(uri, true);
 			// const buf = await win.buffer;
-			// const r = await nvim.commandOutput('new');
-			// console.log(r);
 		});
 	}
-
-	generateOutlineStrings = (uri: string) => {
-		const root = this.outlines[uri];
-		const lines: string[] = [];
-		const icon_default = '\ue612';
-		function genOutline(outline: OutlineParams, indentStr: string) {
-			let indent = indentStr;
-			let foldIndicator = '  ';
-			let icon = icons[outline.element.kind];
-			if (icon === undefined) icon = icon_default;
-			// icon += ' ';
-			if (Array.isArray(outline.children) && outline.children.length > 0 && outline.folded === true)
-				foldIndicator = '▸ ';
-			lines.push(`${indent} ${icon}${outline.element.name}: ${outline.codeRange.start.line}`);
-			const len = indent.length;
-			if (len > 0) {
-				if (indent[len - 1] == middleCorner) {
-					indent = indent.substr(0, len - 1) + verticalLine;
-				} else if (indent[len - 1] == bottomCorner) {
-					indent = indent.substr(0, len - 1) + ' ';
-				}
-			}
-			if (Array.isArray(outline.children))
-				if (outline.children.length == 1) {
-					genOutline(outline.children[0], `${indent} `);
-				} else if (outline.children.length > 1) {
-					for (let i = 0; i < outline.children.length; ++i) {
-						if (i == outline.children.length - 1) {
-							// indent = indent.substr(0, len - 2) + '  ';
-							genOutline(outline.children[i], `${indent}${bottomCorner}`);
-						} else {
-							genOutline(outline.children[i], `${indent}${middleCorner}`);
-						}
-					}
-				}
-		}
-		if (Array.isArray(root.children) && root.children.length > 0)
-			for (const child of root.children) genOutline(child, '');
-		this.outlineStrings[uri] = lines;
-		if (this.outlineVersions[uri] === undefined) {
-			this.outlineVersions[uri] = 0;
-		} else {
-			this.outlineVersions[uri] += 1;
-		}
-	};
 
 	onOutline = async (params: ClientParams_Outline) => {
 		const { uri, outline } = params;
