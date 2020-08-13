@@ -135,25 +135,29 @@ export class Outline extends Dispose {
 				this.outlineVersions_Rendered[uri] = this.outlineVersions[uri];
 				content = this.outlineStrings[uri];
 			}
-			const len = await this.outlineBuffer.length;
-			if (len > content.length) {
-				await this.outlineBuffer.setLines([], {
-					start: 0,
-					end: len - 1,
-					strictIndexing: false,
-				});
-				await this.outlineBuffer.setLines(content, {
-					start: 0,
-					end: 0,
-					strictIndexing: false,
-				});
-			} else {
-				await this.outlineBuffer.setLines(content, {
-					start: 0,
-					end: len - 1,
-					strictIndexing: false,
-				});
-			}
+			await this.outlineBuffer.length
+				.then(async (len: number) => {
+					if (Number.isInteger(len))
+						if (len > content.length) {
+							await this.outlineBuffer.setLines([], {
+								start: 0,
+								end: len - 1,
+								strictIndexing: false,
+							});
+							await this.outlineBuffer.setLines(content, {
+								start: 0,
+								end: 0,
+								strictIndexing: false,
+							});
+						} else {
+							await this.outlineBuffer.setLines(content, {
+								start: 0,
+								end: len - 1,
+								strictIndexing: false,
+							});
+						}
+				})
+				.catch(() => {});
 		}
 		const windows = await workspace.nvim.windows;
 		if (
