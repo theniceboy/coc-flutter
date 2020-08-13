@@ -15,6 +15,10 @@ Features of this fork:
 - UI Path Display
 - Flutter Outline Panel
 
+![Flutter Outline](https://user-images.githubusercontent.com/8187501/90091803-eca0a400-dd59-11ea-9bee-2401c85ddff9.gif)
+
+
+
 ## Features
 
 > Make sure that you have the Flutter SDK path in the `PATH` environment variable
