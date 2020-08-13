@@ -1,6 +1,6 @@
 {
 	"name": "coc-flutter-tools",
-	"version": "1.2.1",
+	"version": "1.2.2",
 	"description": "Rich Flutter development experience for (Neo)vim",
 	"author": "David Chen <weichen2000121@gmail.com>",
 	"license": "MIT",
@@ -195,5 +195,5 @@
 		"webpack-cli": "^3.3.6",
 		"which": "^2.0.1"
 	},
-	"homepage": "https://github.com/theniceboy/coc-flutter"
+	"homepage": "https://github.com/theniceboy/coc-flutter-tools"
 }
