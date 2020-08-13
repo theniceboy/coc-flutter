@@ -18,7 +18,7 @@ const icons = {
 	FUNCTION: '\u0192 ',
 	METHOD: '\uf6a6 ',
 };
-const outlineBufferName = '__flutter_widget_tree';
+const outlineBufferName = 'Flutter Outline';
 
 function ucs2ToBinaryString(str) {
 	const escstr = encodeURIComponent(str);
@@ -264,6 +264,7 @@ export class Outline extends Dispose {
 			await nvim.command('set splitright');
 			await nvim.command(`30vsplit ${outlineBufferName}`);
 			const win = await nvim.window;
+			await nvim.command('setlocal filetype=flutterOutline');
 			await nvim.command('set buftype=nofile');
 			// await nvim.command('setlocal nomodifiable');
 			await nvim.command('setlocal nocursorline');
