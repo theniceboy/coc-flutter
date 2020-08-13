@@ -68,12 +68,14 @@ export class Outline extends Dispose {
 	public curOutlineItem: OutlineParams | undefined;
 	public highlightIds: number[] = [];
 	public showPath: boolean | undefined;
+	public outlineWidth = 30;
 
 	constructor(client: LanguageClient) {
 		super();
 		this.init(client);
 		const config = workspace.getConfiguration('flutter');
 		this.showPath = config.get<boolean>('UIPath', true);
+		this.outlineWidth = config.get<number>('outlineWidth', 30);
 	}
 
 	generateOutlineStrings = (uri: string) => {
@@ -265,14 +267,15 @@ export class Outline extends Dispose {
 			}
 		});
 		client.onNotification('dart/textDocument/publishOutline', this.onOutline);
-		commands.registerCommand(`${cmdPrefix}.outline`, async () => {
+		const openOutlinePanel = async () => {
 			const curWin = await nvim.window;
 			await nvim.command('set splitright');
-			await nvim.command(`30vsplit ${outlineBufferName}`);
+			await nvim.command(`${this.outlineWidth}vsplit ${outlineBufferName}`);
 			const win = await nvim.window;
 			await nvim.command('setlocal filetype=flutterOutline');
 			await nvim.command('set buftype=nofile');
 			await nvim.command('setlocal nomodifiable');
+			await nvim.command('setlocal winfixwidth');
 			await nvim.command('setlocal nocursorline');
 			await nvim.command('setlocal nobuflisted');
 			await nvim.command('setlocal bufhidden=wipe');
@@ -311,6 +314,29 @@ export class Outline extends Dispose {
 			const uri = await this.getCurrentUri();
 			this.updateOutlineBuffer(uri, true);
 			// const buf = await win.buffer;
+		};
+		commands.registerCommand(`${cmdPrefix}.outline`, async () => {
+			await openOutlinePanel();
+		});
+		commands.registerCommand(`${cmdPrefix}.toggleOutline`, async () => {
+			if (this.outlineBuffer === undefined) {
+				await openOutlinePanel();
+				return;
+			}
+			const curWin = await nvim.window;
+			const curTab = await curWin.tabpage;
+			const wins = await nvim.windows;
+			let shouldOpenOutlinePanel = true;
+			for (const win of wins) {
+				const tab = await win.tabpage;
+				if ((await tab.number) === (await curTab.number)) {
+					if ((await win.buffer).id === this.outlineBuffer.id) {
+						shouldOpenOutlinePanel = false;
+						win.close(true).catch(() => {});
+					}
+				}
+			}
+			if (shouldOpenOutlinePanel) await openOutlinePanel();
 		});
 	}
 

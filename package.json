@@ -1,6 +1,6 @@
 {
 	"name": "coc-flutter-tools",
-	"version": "1.2.5",
+	"version": "1.2.6",
 	"description": "Rich Flutter development experience for (Neo)vim",
 	"author": "David Chen <weichen2000121@gmail.com>",
 	"license": "MIT",
@@ -73,6 +73,11 @@
 					"type": "boolean",
 					"default": true,
 					"description": "Whether if the path for the current UI component should be shown on the status bar"
+				},
+				"flutter.outlineWidth": {
+					"type": "number",
+					"default": 30,
+					"description": "The default width of the outline panel"
 				},
 				"flutter.lsp.debug": {
 					"type": "boolean",
@@ -173,6 +178,10 @@
 			{
 				"command": "flutter.outline",
 				"title": "Opens a side panel that shows real time the flutter outline"
+			},
+			{
+				"command": "flutter.outline",
+				"title": "Toggles the flutter outline side panel"
 			}
 		]
 	},
