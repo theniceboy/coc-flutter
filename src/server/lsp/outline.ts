@@ -10,14 +10,18 @@ const verticalLine = '│';
 const bottomCorner = '└';
 const middleCorner = '├';
 const icons = {
-	TOP_LEVEL_VARIABLE: '\uf435',
+	TOP_LEVEL_VARIABLE: '\uf435 ',
 	CLASS: '\uf0e8 ',
 	FIELD: '\uf93d',
 	CONSTRUCTOR: '\ue624 ',
 	CONSTRUCTOR_INVOCATION: '\ufc2a ',
 	FUNCTION: '\u0192 ',
 	METHOD: '\uf6a6 ',
+	GETTER: '\uf9fd',
+	ENUM: '\uf779 ',
+	ENUM_CONSTANT: '\uf02b ',
 };
+const icon_default = '\ue612 ';
 const outlineBufferName = 'Flutter Outline';
 
 function ucs2ToBinaryString(str: string) {
@@ -75,7 +79,6 @@ export class Outline extends Dispose {
 	generateOutlineStrings = (uri: string) => {
 		const root = this.outlines[uri];
 		const lines: string[] = [];
-		const icon_default = '\ue612';
 		function genOutline(outline: OutlineParams, indentStr: string) {
 			let indent = indentStr;
 			let foldIndicator = '  ';
@@ -292,9 +295,15 @@ export class Outline extends Dispose {
 			await nvim.command(`syntax match FlutterOutlineTopLevelVar /${icons.TOP_LEVEL_VARIABLE}/`);
 			await nvim.command(`highlight default link FlutterOutlineTopLevelVar Identifier`);
 			await nvim.command(`syntax match FlutterOutlineConstructor /${icons.CONSTRUCTOR}/`);
-			await nvim.command(`highlight default link FlutterOutlineConstructor Function`);
+			await nvim.command(`highlight default link FlutterOutlineConstructor Identifier`);
+			await nvim.command(`syntax match FlutterOutlineGetter /${icons.GETTER}/`);
+			await nvim.command(`highlight default link FlutterOutlineGetter Function`);
 			await nvim.command(`syntax match FlutterOutlineConstructorInvocation /${icons.CONSTRUCTOR_INVOCATION}/`);
 			await nvim.command(`highlight default link FlutterOutlineConstructorInvocation Special`);
+			await nvim.command(`syntax match FlutterOutlineEnum /${icons.ENUM}/`);
+			await nvim.command(`highlight default link FlutterOutlineEnum Type`);
+			await nvim.command(`syntax match FlutterOutlineEnumMember /${icons.ENUM_CONSTANT}/`);
+			await nvim.command(`highlight default link FlutterOutlineEnumMember Identifier`);
 			await nvim.command(`syntax match FlutterOutlineLineNumber /: \\d\\+$/`);
 			await nvim.command(`highlight default link FlutterOutlineLineNumber Number`);
 			this.outlineBuffer = await win.buffer;
