@@ -84,7 +84,7 @@ export class Outline extends Dispose {
 			// icon += ' ';
 			if (Array.isArray(outline.children) && outline.children.length > 0 && outline.folded === true)
 				foldIndicator = '▸ ';
-			const newLine = `${indent} ${icon}${outline.element.name}: ${outline.codeRange.start.line}`;
+			const newLine = `${indent} ${icon}${outline.element.name}: ${outline.codeRange.start.line + 1}`;
 			outline.lineNumber = lines.length;
 			outline.startCol = ucs2ToBinaryString(indent).length;
 			outline.endCol = ucs2ToBinaryString(newLine).length;
