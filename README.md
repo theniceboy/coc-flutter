@@ -63,6 +63,7 @@ Features of this fork:
   > When set to true, will display closing labels at end of closing, only neovim support.
 - [`flutter.UIPath`](#ui-path): default: `true`
   > When set to true, will display the path of the selected UI component on the status bar
+- `flutter.outlineWidth` controls the default width of the flutter outline panel. default: `30`
 - `flutter.sdk.dart-command` dart command, leave empty should just work, default: `''`
 - `flutter.sdk.dart-lookup` command to find dart executable location, used to infer dart-sdk location, default: `''`
 - `flutter.sdk.flutter-lookup` command to find flutter executable location, used to infer location of dart-sdk in flutter cache: `''`
@@ -127,6 +128,7 @@ Get a list of flutter related commands: `CocList --input=flutter commands`
 - `flutter.devices` open devices list
 - `flutter.emulators` open emulators list
 - `flutter.outline` opens up the outline side-panel
+- `flutter.toggleOutline` toggles the outline side-panel
 
 **LSP Commands**
 
