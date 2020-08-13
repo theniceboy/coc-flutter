@@ -243,6 +243,8 @@ export class Outline extends Dispose {
 			await nvim.command('set buftype=nofile');
 			// await nvim.command('setlocal nomodifiable');
 			await nvim.command('setlocal nocursorline');
+			await nvim.command('setlocal nobuflisted');
+			await nvim.command('setlocal bufhidden=wipe');
 			await nvim.command('setlocal nonumber');
 			await nvim.command('setlocal norelativenumber');
 			await nvim.command('setlocal nowrap');
