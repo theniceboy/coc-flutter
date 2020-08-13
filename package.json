@@ -1,6 +1,6 @@
 {
 	"name": "coc-flutter-tools",
-	"version": "1.1.0",
+	"version": "1.2.0",
 	"description": "flutter support for Neovim",
 	"author": "David Chen <weichen2000121@gmail.com>",
 	"license": "MIT",
@@ -68,6 +68,11 @@
 					"type": "boolean",
 					"default": true,
 					"description": "Enable coc-flutter extension"
+				},
+				"flutter.UIPath": {
+					"type": "boolean",
+					"default": true,
+					"description": "Whether if the path for the current UI component should be shown on the status bar"
 				},
 				"flutter.lsp.debug": {
 					"type": "boolean",

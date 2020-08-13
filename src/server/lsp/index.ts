@@ -127,10 +127,7 @@ export class LspServer extends Dispose {
 			.then(() => {
 				log('analysis server ready!');
 				if (initialization.closingLabels) this.push(new ClosingLabels(client));
-				if (initialization.outline) {
-					this.push(new Outline(client));
-					workspace.nvim.command('autocmd CursorMoved * :CocCommand flutter.updateCursorText');
-				}
+				this.push(new Outline(client));
 				// FIXME
 				setTimeout(() => {
 					// https://github.com/iamcco/coc-flutter/issues/8
