@@ -1,7 +1,7 @@
 import { commands, LanguageClient, workspace } from 'coc.nvim';
 import { statusBar } from '../../lib/status';
 import { cmdPrefix } from '../../util/constant';
-import { Range, Position } from 'vscode-languageserver-protocol';
+import { Range } from 'vscode-languageserver-protocol';
 
 import { Dispose } from '../../util/dispose';
 
@@ -20,9 +20,9 @@ const icons = {
 };
 const outlineBufferName = 'Flutter Outline';
 
-function ucs2ToBinaryString(str) {
+function ucs2ToBinaryString(str: string) {
 	const escstr = encodeURIComponent(str);
-	const binstr = escstr.replace(/%([0-9A-F]{2})/gi, function(match, hex) {
+	const binstr = escstr.replace(/%([0-9A-F]{2})/gi, function(_, hex) {
 		const i = parseInt(hex, 16);
 		return String.fromCharCode(i);
 	});
@@ -137,7 +137,8 @@ export class Outline extends Dispose {
 			}
 			await this.outlineBuffer.length
 				.then(async (len: number) => {
-					if (Number.isInteger(len))
+					if (Number.isInteger(len)) {
+						await this.outlineBuffer.setOption('modifiable', true);
 						if (len > content.length) {
 							await this.outlineBuffer.setLines([], {
 								start: 0,
@@ -156,6 +157,8 @@ export class Outline extends Dispose {
 								strictIndexing: false,
 							});
 						}
+						await this.outlineBuffer.setOption('modifiable', false);
+					}
 				})
 				.catch(() => {});
 		}
@@ -266,7 +269,7 @@ export class Outline extends Dispose {
 			const win = await nvim.window;
 			await nvim.command('setlocal filetype=flutterOutline');
 			await nvim.command('set buftype=nofile');
-			// await nvim.command('setlocal nomodifiable');
+			await nvim.command('setlocal nomodifiable');
 			await nvim.command('setlocal nocursorline');
 			await nvim.command('setlocal nobuflisted');
 			await nvim.command('setlocal bufhidden=wipe');
