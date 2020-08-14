@@ -18,7 +18,6 @@ Features of this fork:
 ![Flutter Outline](https://user-images.githubusercontent.com/8187501/90091803-eca0a400-dd59-11ea-9bee-2401c85ddff9.gif)
 
 
-
 ## Features
 
 > Make sure that you have the Flutter SDK path in the `PATH` environment variable
@@ -127,8 +126,8 @@ Get a list of flutter related commands: `CocList --input=flutter commands`
 - `flutter.pub.get` Run: `flutter pub get`
 - `flutter.devices` open devices list
 - `flutter.emulators` open emulators list
-- `flutter.outline` opens up the outline side-panel
-- `flutter.toggleOutline` toggles the outline side-panel
+- `flutter.outline` opens up an instance of the flutter outline side-panel
+- `flutter.toggleOutline` toggles the flutter outline side-panel
 
 **LSP Commands**
 
@@ -172,3 +171,6 @@ the closing labels will be display at end of closing.
 ### UI Path
 when `flutter.UIPath` is set to `true`, the path for the UI component under cursor will be shown on the status bar.
 ![Screen Shot 2020-08-09 at 6 25 10 PM](https://user-images.githubusercontent.com/8187501/89730211-575a9280-da6f-11ea-9ad1-73770c1840db.png)
+
+### Flutter Outline
+In the Flutter Outline panel, press `enter` to goto the corresponding location in the source file.

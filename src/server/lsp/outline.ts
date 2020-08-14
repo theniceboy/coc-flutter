@@ -61,6 +61,8 @@ interface ElementParams {
 export class Outline extends Dispose {
 	public outlines: Record<string, OutlineParams> = {};
 	public outlineStrings: Record<string, string[]> = {};
+	// the corresponding outline item for each line number in the outline panel
+	public outlinePanelData: Record<string, OutlineParams[]> = {};
 	public outlineVersions: Record<string, number> = {};
 	public outlineVersions_Rendered: Record<string, number> = {};
 	public renderedOutlineUri = '';
@@ -69,6 +71,7 @@ export class Outline extends Dispose {
 	public highlightIds: number[] = [];
 	public showPath: boolean | undefined;
 	public outlineWidth = 30;
+	public curUri = '';
 
 	constructor(client: LanguageClient) {
 		super();
@@ -81,6 +84,7 @@ export class Outline extends Dispose {
 	generateOutlineStrings = (uri: string) => {
 		const root = this.outlines[uri];
 		const lines: string[] = [];
+		const outlineItems: OutlineParams[] = [];
 		function genOutline(outline: OutlineParams, indentStr: string) {
 			let indent = indentStr;
 			let foldIndicator = '  ';
@@ -94,6 +98,7 @@ export class Outline extends Dispose {
 			outline.startCol = ucs2ToBinaryString(indent).length;
 			outline.endCol = ucs2ToBinaryString(newLine).length;
 			lines.push(newLine);
+			outlineItems.push(outline);
 			const len = indent.length;
 			if (len > 0) {
 				if (indent[len - 1] == middleCorner) {
@@ -119,10 +124,38 @@ export class Outline extends Dispose {
 		if (Array.isArray(root.children) && root.children.length > 0)
 			for (const child of root.children) genOutline(child, '');
 		this.outlineStrings[uri] = lines;
+		this.outlinePanelData[uri] = outlineItems;
 		if (this.outlineVersions[uri] === undefined) {
 			this.outlineVersions[uri] = 0;
 		} else {
 			this.outlineVersions[uri] += 1;
+		}
+	};
+
+	highlightCurrentOutlineItem = async () => {
+		if (
+			this.curOutlineItem !== undefined &&
+			this.outlineBuffer !== undefined &&
+			this.curOutlineItem.lineNumber !== undefined &&
+			this.curOutlineItem.startCol !== undefined &&
+			this.curOutlineItem.endCol !== undefined
+		) {
+			const windows = await workspace.nvim.windows;
+			for (const win of windows) {
+				const buf = await win.buffer;
+				if (buf.id === this.outlineBuffer.id) {
+					buf.clearHighlight();
+					win.setCursor([this.curOutlineItem.lineNumber + 1, 0]).catch(() => {});
+					buf
+						.addHighlight({
+							hlGroup: 'HighlightedOutlineArea',
+							line: this.curOutlineItem.lineNumber,
+							colStart: this.curOutlineItem.startCol,
+							colEnd: this.curOutlineItem.endCol,
+						})
+						.catch(() => {});
+				}
+			}
 		}
 	};
 
@@ -166,33 +199,24 @@ export class Outline extends Dispose {
 					}
 				})
 				.catch(() => {});
-		}
-		const windows = await workspace.nvim.windows;
-		if (
-			this.curOutlineItem !== undefined &&
-			this.outlineBuffer !== undefined &&
-			this.curOutlineItem.lineNumber !== undefined &&
-			this.curOutlineItem.startCol !== undefined &&
-			this.curOutlineItem.endCol !== undefined
-		) {
-			// workspace.nvim.pauseNotification();
-			// workspace.nvim.resumeNotification();
-			for (const win of windows) {
-				const buf = await win.buffer;
-				if (buf.id === this.outlineBuffer.id) {
-					buf.clearHighlight();
-					win.setCursor([this.curOutlineItem.lineNumber, 0]).catch(() => {});
-					buf
-						.addHighlight({
-							hlGroup: 'HighlightedOutlineArea',
-							line: this.curOutlineItem.lineNumber,
-							colStart: this.curOutlineItem.startCol,
-							colEnd: this.curOutlineItem.endCol,
-						})
-						.catch(() => {});
+			await this.outlineBuffer.length.then(async (len: number) => {
+				await this.outlineBuffer.setOption('modifiable', true);
+				if (len > content.length) {
+					await this.outlineBuffer.setLines([], {
+						start: 0,
+						end: len - 1,
+						strictIndexing: false,
+					});
+					await this.outlineBuffer.setLines(content, {
+						start: 0,
+						end: 0,
+						strictIndexing: false,
+					});
 				}
-			}
+				await this.outlineBuffer.setOption('modifiable', false);
+			});
 		}
+		await this.highlightCurrentOutlineItem();
 	};
 
 	getUIPathFromCursor(outline: OutlineParams, cursor: number[]) {
@@ -225,7 +249,7 @@ export class Outline extends Dispose {
 			}
 		}
 		this.curOutlineItem = outline;
-		statusBar.show(elementPath, false);
+		if (this.showPath) statusBar.show(elementPath, false);
 	}
 
 	async getCurrentUri() {
@@ -238,12 +262,16 @@ export class Outline extends Dispose {
 		nvim.on('notification', async (...args) => {
 			if (args[0] === 'CocAutocmd') {
 				if (args[1][0] === 'CursorMoved') {
+					const bufId = args[1][1];
 					const cursor = args[1][2];
-					const uri = await this.getCurrentUri();
-					const outline = this.outlines[uri];
-					if (outline) {
-						if (this.showPath) this.getUIPathFromCursor(outline, cursor);
-						this.updateOutlineBuffer(uri);
+					if (this.outlineBuffer && bufId === this.outlineBuffer.id) {
+					} else {
+						this.curUri = await this.getCurrentUri();
+						const outline = this.outlines[this.curUri];
+						if (outline) {
+							this.getUIPathFromCursor(outline, cursor);
+							this.updateOutlineBuffer(this.curUri);
+						}
 					}
 				} else if (args[1][0] === 'BufEnter' && Number.isInteger(args[1][1])) {
 					if (this.outlineBuffer && args[1][1] === this.outlineBuffer.id) {
@@ -310,6 +338,30 @@ export class Outline extends Dispose {
 			await nvim.command(`syntax match FlutterOutlineLineNumber /: \\d\\+$/`);
 			await nvim.command(`highlight default link FlutterOutlineLineNumber Number`);
 			this.outlineBuffer = await win.buffer;
+			workspace.registerLocalKeymap('n', '<CR>', async () => {
+				const curWin = await nvim.window;
+				const cursor = await curWin.cursor;
+				const outlineItems = this.outlinePanelData[this.curUri];
+				if (!Array.isArray(outlineItems)) return;
+				const outline = outlineItems[cursor[0] - 1];
+				if (outline === undefined) return;
+				const wins = await nvim.windows;
+				if (Array.isArray(wins)) {
+					const curWin = await nvim.window;
+					const curTab = await curWin.tabpage;
+					for (const win of wins) {
+						const tab = await win.tabpage;
+						if (
+							(await tab.number) === (await curTab.number) &&
+							`file://${await (await win.buffer).name}` === this.curUri
+						) {
+							win.setCursor([outline.codeRange.start.line + 1, outline.codeRange.start.character]).catch(() => {});
+							await nvim.call('win_gotoid', [win.id]);
+							break;
+						}
+					}
+				}
+			});
 			await nvim.call('win_gotoid', [curWin.id]);
 			const uri = await this.getCurrentUri();
 			this.updateOutlineBuffer(uri, true);
@@ -338,6 +390,7 @@ export class Outline extends Dispose {
 			}
 			if (shouldOpenOutlinePanel) await openOutlinePanel();
 		});
+		commands.registerCommand(`${cmdPrefix}.outlineGotoLine`, async () => {});
 	}
 
 	onOutline = async (params: ClientParams_Outline) => {
