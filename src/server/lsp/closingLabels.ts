@@ -60,7 +60,9 @@ export class ClosingLabels extends Dispose {
 		this.nsIds[uri] = await nvim.createNamespace(virtualNamespace);
 		nvim.pauseNotification();
 		for (const label of labels) {
-			buffer.setVirtualText(this.nsIds[uri], label.range.end.line, [[`// ${label.label}`, flutterClosingLabel]]);
+			buffer.setVirtualText(this.nsIds[uri], label.range.end.line, [
+				[`// ${label.label}`, flutterClosingLabel],
+			]);
 		}
 		await nvim.resumeNotification();
 	};
@@ -70,7 +72,7 @@ export class ClosingLabels extends Dispose {
 		// clear closing labels
 		const uris = Object.keys(this.nsIds);
 		if (uris.length) {
-			uris.forEach(uri => {
+			uris.forEach((uri) => {
 				const doc = workspace.getDocument(uri);
 				if (!doc) {
 					return;

@@ -116,11 +116,11 @@ export class Dev extends Dispose {
 
 	constructor() {
 		super();
-		['run', 'attach'].forEach(cmd => {
+		['run', 'attach'].forEach((cmd) => {
 			const cmdId = `${cmdPrefix}.${cmd}`;
 			this.push(commands.registerCommand(cmdId, this[`${cmd}Server`], this));
 			this.push(
-				(function() {
+				(function () {
 					commands.titles.set(cmdId, `${cmd} flutter server`);
 					return {
 						dispose() {
@@ -158,7 +158,7 @@ export class Dev extends Dispose {
 	private registerCommands() {
 		log('register commands');
 		this.cmds.push(
-			...Object.keys(cmds).map(key => {
+			...Object.keys(cmds).map((key) => {
 				const cmdId = `${cmdPrefix}.dev.${key}`;
 				commands.titles.set(cmdId, cmds[key].desc);
 				const subscription = commands.registerCommand(cmdId, this.execCmd(cmds[key]));
@@ -175,7 +175,7 @@ export class Dev extends Dispose {
 	private unRegisterCommands() {
 		log('unregister commands');
 		if (this.cmds) {
-			this.cmds.forEach(cmd => {
+			this.cmds.forEach((cmd) => {
 				cmd.dispose();
 			});
 		}
@@ -200,10 +200,12 @@ export class Dev extends Dispose {
 
 	private filterInvalidLines(lines: string[]): string[] {
 		return lines
-			.map(line => reduceSpace(line))
-			.filter(line => {
+			.map((line) => reduceSpace(line))
+			.filter((line) => {
 				if (this.shouldLayoutOutputFilter) {
-					if (line.startsWith('flutter: ════════════════════════════════════════════════════════')) {
+					if (
+						line.startsWith('flutter: ════════════════════════════════════════════════════════')
+					) {
 						this.shouldLayoutOutputFilter = false;
 					}
 					return false;
@@ -237,7 +239,7 @@ export class Dev extends Dispose {
 	}
 
 	private onStdout = (lines: string[]) => {
-		lines.forEach(line => {
+		lines.forEach((line) => {
 			const m = line.match(
 				/^\s*An Observatory debugger and profiler on .* is available at:\s*https?(:\/\/127\.0\.0\.1:\d+\/.+\/)$/,
 			);

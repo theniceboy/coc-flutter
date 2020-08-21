@@ -17,7 +17,11 @@ export const resolveCompleteItem = (item: CompletionItem) => {
 
 	// remove unnecessary snippet
 	// snippet xxxx${1:} === xxxx PlainText
-	if (item.insertTextFormat === InsertTextFormat.Snippet && item.insertText && item.insertText.endsWith('${1:}')) {
+	if (
+		item.insertTextFormat === InsertTextFormat.Snippet &&
+		item.insertText &&
+		item.insertText.endsWith('${1:}')
+	) {
 		item.insertTextFormat = InsertTextFormat.PlainText;
 		item.insertText = item.insertText.slice(0, -5);
 	}

@@ -83,7 +83,7 @@ class DevServer extends Dispose {
 		this.task.on('error', this._onError);
 
 		if (this.onHandler.length) {
-			this.onHandler.forEach(cb => cb());
+			this.onHandler.forEach((cb) => cb());
 			this.onHandler = [];
 		}
 		return true;
@@ -185,7 +185,7 @@ class DevServer extends Dispose {
 					}
 					for (const win of wins) {
 						win.buffer
-							.then(async b => {
+							.then(async (b) => {
 								const name = await b.name;
 								if (name === `output:///${devLogName}`) {
 									const lines = await buf.length;

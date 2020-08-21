@@ -1,5 +1,10 @@
 import { languages, LanguageClient } from 'coc.nvim';
-import { TextDocument, Position, CancellationToken, SignatureHelp } from 'vscode-languageserver-protocol';
+import {
+	TextDocument,
+	Position,
+	CancellationToken,
+	SignatureHelp,
+} from 'vscode-languageserver-protocol';
 
 import { Dispose } from '../../util/dispose';
 

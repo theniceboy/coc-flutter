@@ -93,7 +93,9 @@ export class LspServer extends Dispose {
 			revealOutputChannelOn: RevealOutputChannelOn.Never,
 
 			middleware: {
-				provideCompletionItem: config.get<boolean>('provider.enableSnippet', true) ? completionProvider : undefined,
+				provideCompletionItem: config.get<boolean>('provider.enableSnippet', true)
+					? completionProvider
+					: undefined,
 				provideCodeActions: codeActionProvider,
 				workspace: {
 					didChangeWorkspaceFolders(data, next) {
@@ -101,11 +103,11 @@ export class LspServer extends Dispose {
 							const ignore = config
 								.get<string[]>('workspaceFolder.ignore', [])
 								.concat(flutterSDK.sdkHome)
-								.map(p => {
+								.map((p) => {
 									p = p.replace(/^(~|\$HOME)/, homedir());
 									return Uri.file(p).toString();
 								});
-							data.added = data.added.filter(fold => !ignore.some(i => fold.uri.startsWith(i)));
+							data.added = data.added.filter((fold) => !ignore.some((i) => fold.uri.startsWith(i)));
 						}
 						if (data.added.length || data.removed.length) {
 							next(data);
@@ -116,7 +118,13 @@ export class LspServer extends Dispose {
 		};
 
 		// Create the language client and start the client.
-		const client = new LanguageClient('flutter', 'flutter analysis server', serverOptions, clientOptions, isLspDebug);
+		const client = new LanguageClient(
+			'flutter',
+			'flutter analysis server',
+			serverOptions,
+			clientOptions,
+			isLspDebug,
+		);
 		this._client = client;
 
 		statusBar.init();
