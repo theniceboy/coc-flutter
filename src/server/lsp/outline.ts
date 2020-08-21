@@ -374,7 +374,7 @@ export class Outline extends Dispose {
 			await nvim.call('win_gotoid', [curWin.id]);
 			const uri = await this.getCurrentUri();
 			this.updateOutlineBuffer(uri, true);
-			const buf = await win.buffer;
+			// const buf = await win.buffer;
 		};
 		commands.registerCommand(`${cmdPrefix}.outline`, async () => {
 			await openOutlinePanel();

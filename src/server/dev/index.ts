@@ -194,7 +194,7 @@ class DevServer extends Dispose {
 									if (win.id === curWin.id) {
 										return;
 									}
-									win.setCursor([lines, 0]);
+									win.setCursor([lines, 0]).catch(() => {});
 								}
 							})
 							.catch(() => {});
