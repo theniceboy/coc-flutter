@@ -202,22 +202,24 @@ export class Outline extends Dispose {
 					}
 				})
 				.catch(() => {});
-			await this.outlineBuffer.length.then(async (len: number) => {
-				await this.outlineBuffer.setOption('modifiable', true);
-				if (len > content.length) {
-					await this.outlineBuffer.setLines([], {
-						start: 0,
-						end: len - 1,
-						strictIndexing: false,
-					});
-					await this.outlineBuffer.setLines(content, {
-						start: 0,
-						end: 0,
-						strictIndexing: false,
-					});
-				}
-				await this.outlineBuffer.setOption('modifiable', false);
-			});
+			await this.outlineBuffer.length
+				.then(async (len: number) => {
+					await this.outlineBuffer.setOption('modifiable', true);
+					if (len > content.length) {
+						await this.outlineBuffer.setLines([], {
+							start: 0,
+							end: len - 1,
+							strictIndexing: false,
+						});
+						await this.outlineBuffer.setLines(content, {
+							start: 0,
+							end: 0,
+							strictIndexing: false,
+						});
+					}
+					await this.outlineBuffer.setOption('modifiable', false);
+				})
+				.catch(() => {});
 		}
 		await this.highlightCurrentOutlineItem();
 	};
@@ -372,7 +374,7 @@ export class Outline extends Dispose {
 			await nvim.call('win_gotoid', [curWin.id]);
 			const uri = await this.getCurrentUri();
 			this.updateOutlineBuffer(uri, true);
-			// const buf = await win.buffer;
+			const buf = await win.buffer;
 		};
 		commands.registerCommand(`${cmdPrefix}.outline`, async () => {
 			await openOutlinePanel();
