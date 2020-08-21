@@ -26,7 +26,7 @@ const outlineBufferName = 'Flutter Outline';
 
 function ucs2ToBinaryString(str: string) {
 	const escstr = encodeURIComponent(str);
-	const binstr = escstr.replace(/%([0-9A-F]{2})/gi, function(_, hex) {
+	const binstr = escstr.replace(/%([0-9A-F]{2})/gi, function (_, hex) {
 		const i = parseInt(hex, 16);
 		return String.fromCharCode(i);
 	});
@@ -93,7 +93,9 @@ export class Outline extends Dispose {
 			// icon += ' ';
 			if (Array.isArray(outline.children) && outline.children.length > 0 && outline.folded === true)
 				foldIndicator = '▸ ';
-			const newLine = `${indent} ${icon}${outline.element.name}: ${outline.codeRange.start.line + 1}`;
+			const newLine = `${indent} ${icon}${outline.element.name}: ${
+				outline.codeRange.start.line + 1
+			}`;
 			outline.lineNumber = lines.length;
 			outline.startCol = ucs2ToBinaryString(indent).length;
 			outline.endCol = ucs2ToBinaryString(newLine).length;
@@ -161,7 +163,8 @@ export class Outline extends Dispose {
 
 	updateOutlineBuffer = async (uri: string, force = false) => {
 		if (
-			((this.outlineVersions[uri] === this.outlineVersions_Rendered[uri] && this.outlineVersions[uri] === undefined) ||
+			((this.outlineVersions[uri] === this.outlineVersions_Rendered[uri] &&
+				this.outlineVersions[uri] === undefined) ||
 				this.outlineVersions[uri] !== this.outlineVersions_Rendered[uri] ||
 				uri !== this.renderedOutlineUri ||
 				force) &&
@@ -329,7 +332,9 @@ export class Outline extends Dispose {
 			await nvim.command(`highlight default link FlutterOutlineConstructor Identifier`);
 			await nvim.command(`syntax match FlutterOutlineGetter /${icons.GETTER}/`);
 			await nvim.command(`highlight default link FlutterOutlineGetter Function`);
-			await nvim.command(`syntax match FlutterOutlineConstructorInvocation /${icons.CONSTRUCTOR_INVOCATION}/`);
+			await nvim.command(
+				`syntax match FlutterOutlineConstructorInvocation /${icons.CONSTRUCTOR_INVOCATION}/`,
+			);
 			await nvim.command(`highlight default link FlutterOutlineConstructorInvocation Special`);
 			await nvim.command(`syntax match FlutterOutlineEnum /${icons.ENUM}/`);
 			await nvim.command(`highlight default link FlutterOutlineEnum Type`);
@@ -355,7 +360,9 @@ export class Outline extends Dispose {
 							(await tab.number) === (await curTab.number) &&
 							`file://${await (await win.buffer).name}` === this.curUri
 						) {
-							win.setCursor([outline.codeRange.start.line + 1, outline.codeRange.start.character]).catch(() => {});
+							win
+								.setCursor([outline.codeRange.start.line + 1, outline.codeRange.start.character])
+								.catch(() => {});
 							await nvim.call('win_gotoid', [win.id]);
 							break;
 						}

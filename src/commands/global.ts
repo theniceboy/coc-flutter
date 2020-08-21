@@ -72,7 +72,9 @@ const cmds: GCmd[] = [
 				notification.show('Flutter project workspaceFolder not found!');
 				return;
 			}
-			const { code, err, stdout, stderr } = await execCommand('flutter pub get', { cwd: workspaceFolder });
+			const { code, err, stdout, stderr } = await execCommand('flutter pub get', {
+				cwd: workspaceFolder,
+			});
 			notification.show(formatMessage(stdout));
 			if (err || code) {
 				notification.show(formatMessage(stderr));
@@ -98,7 +100,7 @@ const cmds: GCmd[] = [
 export class Global extends Dispose {
 	constructor() {
 		super();
-		cmds.forEach(cmd => {
+		cmds.forEach((cmd) => {
 			const { desc, execute, name } = cmd;
 			const cmdId = `${cmdPrefix}.${name || cmd.cmd}`;
 			this.push(

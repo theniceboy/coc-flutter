@@ -33,7 +33,10 @@ export class SuperCommand extends Dispose {
 				}
 			}),
 		);
-		commands.titles.set(this.cmdId, 'jump to the location of the super definition of the class or method');
+		commands.titles.set(
+			this.cmdId,
+			'jump to the location of the super definition of the class or method',
+		);
 	}
 
 	dispose(): void {

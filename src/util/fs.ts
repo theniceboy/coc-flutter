@@ -7,8 +7,8 @@ import { Stats } from '@nodelib/fs.scandir/out/types';
 import { ErrnoException } from '@nodelib/fs.stat/out/types';
 
 export const exists = async (path: string): Promise<boolean> => {
-	return new Promise(resolve => {
-		fs.exists(path, exists => {
+	return new Promise((resolve) => {
+		fs.exists(path, (exists) => {
 			resolve(exists);
 		});
 	});
@@ -20,7 +20,7 @@ export const findWorkspaceFolders = async (cwd: string, patterns: string[]): Pro
 		cwd,
 		deep: 10,
 	});
-	return paths.map(p => join(cwd, dirname(p)));
+	return paths.map((p) => join(cwd, dirname(p)));
 };
 
 export const closestPath = (paths: string[]): string | undefined => {
@@ -32,12 +32,17 @@ export const closestPath = (paths: string[]): string | undefined => {
 	return undefined;
 };
 
-export const findWorkspaceFolder = async (cwd: string, patterns: string[]): Promise<string | undefined> => {
+export const findWorkspaceFolder = async (
+	cwd: string,
+	patterns: string[],
+): Promise<string | undefined> => {
 	return closestPath(await findWorkspaceFolders(cwd, patterns));
 };
 
 export const getFlutterWorkspaceFolder = async (): Promise<string | undefined> => {
-	return await findWorkspaceFolder(Uri.parse(workspace.workspaceFolder.uri).fsPath, ['**/pubspec.yaml']);
+	return await findWorkspaceFolder(Uri.parse(workspace.workspaceFolder.uri).fsPath, [
+		'**/pubspec.yaml',
+	]);
 };
 
 export const execCommand = (
@@ -49,7 +54,7 @@ export const execCommand = (
 	stdout: string;
 	stderr: string;
 }> => {
-	return new Promise(resolve => {
+	return new Promise((resolve) => {
 		let code = 0;
 		exec(
 			command,
@@ -69,8 +74,10 @@ export const execCommand = (
 	});
 };
 
-export const isSymbolLink = async (path: string): Promise<{ err: ErrnoException | null; stats: boolean }> => {
-	return new Promise(resolve => {
+export const isSymbolLink = async (
+	path: string,
+): Promise<{ err: ErrnoException | null; stats: boolean }> => {
+	return new Promise((resolve) => {
 		fs.lstat(path, (err: ErrnoException | null, stats: Stats) => {
 			resolve({
 				err,
@@ -83,7 +90,7 @@ export const isSymbolLink = async (path: string): Promise<{ err: ErrnoException 
 export const getRealPath = async (path: string): Promise<string> => {
 	const { err, stats } = await isSymbolLink(path);
 	if (!err && stats) {
-		return new Promise(resolve => {
+		return new Promise((resolve) => {
 			fs.realpath(path, (err: ErrnoException | null, realPath: string) => {
 				if (err) {
 					return resolve(path);
