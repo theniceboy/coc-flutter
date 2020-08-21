@@ -14,7 +14,7 @@
 		"dart"
 	],
 	"engines": {
-		"coc": "^0.0.74"
+		"coc": "^0.0.77"
 	},
 	"scripts": {
 		"clean": "rm -rf ./out",
@@ -22,6 +22,13 @@
 		"build": "webpack",
 		"lint": "eslint --fix ./src/**/*.ts",
 		"prepare": "npm run clean && npm run build"
+	},
+	"prettier": {
+		"singleQuote": true,
+		"trailingComma": "all",
+		"printWidth": 100,
+		"semi": true,
+		"useTabs": true
 	},
 	"husky": {
 		"hooks": {
@@ -186,23 +193,23 @@
 		]
 	},
 	"devDependencies": {
-		"@types/node": "^12.7.1",
-		"@typescript-eslint/eslint-plugin": "^2.5.0",
-		"@typescript-eslint/parser": "^2.5.0",
-		"coc.nvim": "^0.0.74",
+		"@types/node": "^12.12.54",
+		"@typescript-eslint/eslint-plugin": "^3.9.0",
+		"@typescript-eslint/parser": "^3.9.0",
+		"coc.nvim": "^0.0.77",
 		"colors": "^1.4.0",
-		"eslint": "^6.6.0",
-		"eslint-config-prettier": "^6.5.0",
-		"eslint-plugin-prettier": "^3.1.1",
-		"fast-glob": "^3.1.0",
-		"husky": "^3.0.9",
-		"prettier": "^1.18.2",
-		"ts-loader": "^6.0.4",
-		"typescript": "^3.5.3",
-		"vscode-languageserver-protocol": "^3.14.1",
-		"webpack": "^4.39.2",
-		"webpack-cli": "^3.3.6",
-		"which": "^2.0.1"
+		"eslint": "^7.7.0",
+		"eslint-config-prettier": "^6.11.0",
+		"eslint-plugin-prettier": "^3.1.4",
+		"fast-glob": "^3.2.4",
+		"husky": "^4.2.5",
+		"prettier": "^2.0.5",
+		"ts-loader": "^8.0.2",
+		"typescript": "^3.9.7",
+		"vscode-languageserver-protocol": "^3.15.3",
+		"webpack": "^4.44.1",
+		"webpack-cli": "^3.3.12",
+		"which": "^2.0.2"
 	},
 	"homepage": "https://github.com/theniceboy/coc-flutter-tools"
 }
