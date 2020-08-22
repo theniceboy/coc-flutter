@@ -399,7 +399,6 @@ export class Outline extends Dispose {
 			}
 			if (shouldOpenOutlinePanel) await openOutlinePanel();
 		});
-		commands.registerCommand(`${cmdPrefix}.outlineGotoLine`, async () => {});
 	}
 
 	onOutline = async (params: ClientParams_Outline) => {
