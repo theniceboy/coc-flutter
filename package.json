@@ -86,6 +86,11 @@
 					"default": 30,
 					"description": "The default width of the outline panel"
 				},
+				"flutter.outlineIconPadding": {
+					"type": "number",
+					"default": 0,
+					"description": "The number of spaces between the icon and the item text in the outline panel"
+				},
 				"flutter.lsp.debug": {
 					"type": "boolean",
 					"default": false,

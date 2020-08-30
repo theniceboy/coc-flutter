@@ -63,6 +63,7 @@ Features of this fork:
 - [`flutter.UIPath`](#ui-path): default: `true`
   > When set to true, will display the path of the selected UI component on the status bar
 - `flutter.outlineWidth` controls the default width of the flutter outline panel. default: `30`
+- `flutter.outlineIconPadding` controls The number of spaces between the icon and the item text in the outline panel. default: `0`
 - `flutter.sdk.dart-command` dart command, leave empty should just work, default: `''`
 - `flutter.sdk.dart-lookup` command to find dart executable location, used to infer dart-sdk location, default: `''`
 - `flutter.sdk.flutter-lookup` command to find flutter executable location, used to infer location of dart-sdk in flutter cache: `''`
