@@ -232,6 +232,7 @@ export class Dev extends Dispose {
 					!line.startsWith('c Clear the screen') &&
 					!line.startsWith('q Quit (terminate the application on the device).') &&
 					!line.startsWith('flutter: Another exception was thrown:') &&
+					!line.startsWith('[VERBOSE-2:profiler_metrics_ios.mm') &&
 					!line.startsWith('An Observatory debugger and profiler on') &&
 					!/^flutter: #\d+ +.+$/.test(line)
 				);
