@@ -144,19 +144,21 @@ export class Outline extends Dispose {
 		) {
 			const windows = await workspace.nvim.windows;
 			for (const win of windows) {
-				const buf = await win.buffer;
-				if (buf.id === this.outlineBuffer.id) {
-					buf.clearHighlight();
-					win.setCursor([this.curOutlineItem.lineNumber + 1, 0]).catch(() => {});
-					buf
-						.addHighlight({
-							hlGroup: 'HighlightedOutlineArea',
-							line: this.curOutlineItem.lineNumber,
-							colStart: this.curOutlineItem.startCol,
-							colEnd: this.curOutlineItem.endCol,
-						})
-						.catch(() => {});
-				}
+				try {
+					const buf = await win.buffer;
+					if (buf.id === this.outlineBuffer.id) {
+						buf.clearHighlight();
+						win.setCursor([this.curOutlineItem.lineNumber + 1, 0]).catch(() => {});
+						buf
+							.addHighlight({
+								hlGroup: 'HighlightedOutlineArea',
+								line: this.curOutlineItem.lineNumber,
+								colStart: this.curOutlineItem.startCol,
+								colEnd: this.curOutlineItem.endCol,
+							})
+							.catch(() => {});
+					}
+				} catch (e) {}
 			}
 		}
 	};
