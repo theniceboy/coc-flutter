@@ -99,6 +99,14 @@ export const cmds: Record<string, DCmd> = {
 			run.openProfiler();
 		},
 	},
+	clearDevLog: {
+		desc: 'Clear the flutter dev server log',
+		callback: () => {
+			if (devServer.state) {
+				devServer.clearDevLog();
+			}
+		},
+	},
 	openDevLog: {
 		desc: 'Open flutter dev server log',
 		callback: () => {

@@ -144,6 +144,7 @@ Get a list of flutter related commands: `CocList --input=flutter commands`
 - `flutter.dev.hotRestart` Hot restart
 - `flutter.dev.screenshot` To save a screenshot to flutter.png
 - `flutter.dev.openDevLog` Open flutter dev server log
+- `flutter.dev.clearDevLog` Clear the flutter dev server log
 - `flutter.dev.openProfiler` Open the [DevTools](https://flutter.dev/docs/development/tools/devtools/overview) in the browser
 - `flutter.dev.debugDumpAPP` You can dump the widget hierarchy of the app (debugDumpApp)
 - `flutter.dev.elevationChecker` To toggle the elevation checker
