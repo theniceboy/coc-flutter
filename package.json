@@ -66,7 +66,7 @@
 					"default": "off",
 					"enum": [
 						"off",
-						"messages",
+						"message",
 						"verbose"
 					],
 					"description": "Trace level of log"
