@@ -1,14 +1,13 @@
 import { commands, Disposable } from 'coc.nvim';
 
 import { devServer } from '../../server/dev';
-import os from 'os';
 import { Dispose } from '../../util/dispose';
 import { opener } from '../../util/opener';
 import { notification } from '../../lib/notification';
 import { logger } from '../../util/logger';
 import { cmdPrefix } from '../../util/constant';
-import { getFlutterWorkspaceFolder } from '../../util/fs';
-import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
+import { devToolsServer } from '../../server/devtools';
+import { ChildProcessWithoutNullStreams } from 'child_process';
 import { reduceSpace } from '../../util';
 
 const log = logger.getlog('dev-command');
@@ -93,10 +92,10 @@ export const cmds: Record<string, DCmd> = {
 		cmd: 'q',
 		desc: 'Quit server',
 	},
-	openProfiler: {
-		desc: 'Observatory debugger and profiler web page',
+	openDevToolsProfiler: {
+		desc: 'Load DevTools page in an external web browser',
 		callback: (run: Dev) => {
-			run.openProfiler();
+			run.openDevToolsProfiler();
 		},
 	},
 	clearDevLog: {
@@ -282,43 +281,36 @@ export class Dev extends Dispose {
 		return !!this.devtoolsTask && this.devtoolsTask.stdin.writable;
 	}
 
-	async openProfiler() {
-		if (!this.profilerUrl) {
+	openDevToolsProfiler(): void {
+		if (!this.profilerUrl || !devServer.state) {
 			return;
 		}
-		notification.show('opening profiler');
-		if (devServer.state) {
-			if (!this.devToolsRunning) {
-				notification.show('should open profiler');
-				const workspaceFolder = await getFlutterWorkspaceFolder();
-				if (!workspaceFolder) {
-					notification.show('Flutter project workspaceFolder not found!');
-					return false;
-				}
-				this.devtoolsTask = spawn('flutter', ['pub', 'global', 'run', 'devtools'], {
-					cwd: workspaceFolder,
-					detached: false,
-					shell: os.platform() === 'win32' ? true : undefined,
-				});
-				this.devtoolsTask.on('exit', () => {
-					this.devtoolsTask = undefined;
-				});
-				this.devtoolsTask.on('error', () => {
-					this.devtoolsTask = undefined;
-				});
-				this.devtoolsTask.on('message', (message, sendhandle) => {
-					notification.show(`${message}`);
-				});
-			}
-			const url = 'http://127.0.0.1:9100/#/?uri=ws' + encodeURIComponent(this.profilerUrl);
+		if (devToolsServer.state) {
+			this.launchDevToolsInBrowser();
+		} else {
+			devToolsServer.start();
+			devToolsServer.onStdout(() => {
+				this.launchDevToolsInBrowser();
+			});
+			devToolsServer.onStderr(() => {
+				this.openDevToolsProfiler();
+			});
+		}
+	}
+
+	private launchDevToolsInBrowser(): ChildProcessWithoutNullStreams | undefined {
+		if (devToolsServer.state) {
 			try {
+				// assertion to fix encodeURIComponent not accepting undefined- we rule out undefined values before this is called
+				const url = `http://${devToolsServer.devToolsUri}/#/?uri=ws${encodeURIComponent(
+					this.profilerUrl as string,
+				)}`;
 				return opener(url);
 			} catch (error) {
 				log(`Open browser fail: ${error.message}\n${error.stack}`);
 				notification.show(`Open browser fail: ${error.message || error}`);
 			}
 		}
-		notification.show('Flutter server is not running!');
 	}
 
 	dispose() {

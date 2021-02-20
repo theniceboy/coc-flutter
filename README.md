@@ -76,6 +76,7 @@ Features of this fork:
 - `flutter.openDevLogSplitCommand` Vim command to open dev log window, like: `botright 10split`, default: ''
 - `flutter.workspaceFolder.ignore` Path start within the list will not treat as workspaceFolder, default: []
   - also flutter sdk will not treat as workspaceFolder, more detail issues [50](https://github.com/iamcco/coc-flutter/issues/50)
+- `flutter.runDevToolsAtStartup` Automatically open devtools debugger web page when a project is run, default: 'false'
 
 
 **Enable format on save**:
@@ -145,11 +146,11 @@ Get a list of flutter related commands: `CocList --input=flutter commands`
 - `flutter.dev.screenshot` To save a screenshot to flutter.png
 - `flutter.dev.openDevLog` Open flutter dev server log
 - `flutter.dev.clearDevLog` Clear the flutter dev server log
-- `flutter.dev.openProfiler` Open the [DevTools](https://flutter.dev/docs/development/tools/devtools/overview) in the browser
 - `flutter.dev.debugDumpAPP` You can dump the widget hierarchy of the app (debugDumpApp)
 - `flutter.dev.elevationChecker` To toggle the elevation checker
 - `flutter.dev.debugDumpLayerTree` For layers (debugDumpLayerTree)
 - `flutter.dev.debugDumpRenderTree` To dump the rendering tree of the app (debugDumpRenderTree)
+- `flutter.dev.openDevToolsProfiler` Open the [DevTools](https://flutter.dev/docs/development/tools/devtools/overview) in the browser
 - `flutter.dev.debugPaintSizeEnabled` To toggle the display of construction lines (debugPaintSizeEnabled)
 - `flutter.dev.defaultTargetPlatform` To simulate different operating systems, (defaultTargetPlatform)
 - `flutter.dev.showPerformanceOverlay` To display the performance overlay (WidgetsApp.showPerformanceOverlay)
