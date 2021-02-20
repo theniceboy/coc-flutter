@@ -5,6 +5,7 @@ import fastGlob from 'fast-glob';
 import { Uri, workspace } from 'coc.nvim';
 import { Stats } from '@nodelib/fs.scandir/out/types';
 import { ErrnoException } from '@nodelib/fs.stat/out/types';
+import { logger } from './logger';
 
 export const exists = async (path: string): Promise<boolean> => {
 	return new Promise((resolve) => {
@@ -45,6 +46,8 @@ export const getFlutterWorkspaceFolder = async (): Promise<string | undefined> =
 	]);
 };
 
+const log = logger.getlog('fs');
+
 export const execCommand = (
 	command: string,
 	options: ExecOptions = {},
@@ -55,6 +58,7 @@ export const execCommand = (
 	stderr: string;
 }> => {
 	return new Promise((resolve) => {
+		log(`executing command ${command}`);
 		let code = 0;
 		exec(
 			command,
