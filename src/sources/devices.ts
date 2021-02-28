@@ -1,9 +1,8 @@
-import { IList, ListAction, ListItem, commands } from 'coc.nvim';
+import { IList, ListAction, ListItem, commands, workspace } from 'coc.nvim';
 import colors from 'colors/safe';
 
-import { execCommand } from '../util/fs';
 import { lineBreak } from '../util/constant';
-import { logger } from '../util/logger';
+import { flutterSDK } from '../lib/sdk';
 
 interface Device {
 	name: string;
@@ -11,8 +10,6 @@ interface Device {
 	platform: string;
 	system: string;
 }
-
-const log = logger.getlog('devserver');
 
 export default class DevicesList implements IList {
 	public readonly name = 'FlutterDevices';
@@ -34,7 +31,11 @@ export default class DevicesList implements IList {
 	}
 
 	public async loadItems(): Promise<ListItem[]> {
-		const { err, stdout } = await execCommand('flutter devices');
+		const config = workspace.getConfiguration('flutter');
+		const timeout = config.get<number>('commands.devicesTimeout', 1);
+		const { err, stdout } = await flutterSDK.execFlutterCommand(
+			`devices --device-timeout=${timeout}`,
+		);
 		let devices: Device[] = [];
 		if (!err) {
 			devices = stdout
