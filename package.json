@@ -1,6 +1,6 @@
 {
 	"name": "coc-flutter-tools",
-	"version": "1.4.0",
+	"version": "1.4.1",
 	"description": "Rich Flutter development experience for (Neo)vim",
 	"author": "David Chen <weichen2000121@gmail.com>",
 	"license": "MIT",
