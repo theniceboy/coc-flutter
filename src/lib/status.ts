@@ -5,12 +5,13 @@ class StatusBar extends Dispose {
 	private isLSPReady = false;
 	private statusBar: StatusBarItem | undefined = undefined;
 
-	ready(client: LanguageClient) {
+	get isInitialized(): boolean {
+		return this.statusBar != undefined;
+	}
+
+	ready() {
 		this.isLSPReady = true;
-		// register analyzer status
-		client.onNotification('$/analyzerStatus', (params: { isAnalyzing: boolean }) => {
-			this.progress(params.isAnalyzing);
-		});
+		this.show('flutter', false);
 	}
 
 	init() {
@@ -33,6 +34,11 @@ class StatusBar extends Dispose {
 				},
 			}),
 		);
+	}
+
+	restartingLsp() {
+		this.isLSPReady = false;
+		this.show('restartingLsp', true);
 	}
 
 	show(message: string, isProgress?: boolean) {
