@@ -39,6 +39,7 @@ Features of this fork:
 - Flutter Dev Server support
 - Snippets (enable with `flutter.provider.enableSnippet`)
 - Device/Emulator List
+- SDK switching
 
 ## Installation
 
@@ -46,8 +47,27 @@ Features of this fork:
 
 > **NOTE**: The [dart-vim-plugin](https://github.com/dart-lang/dart-vim-plugin) plugin is recommended (for filetype detection and syntax highlighting)
 
+Most likely the extension will find your SDK automatically as long as the `flutter` command maps to an SDK location on your system.
+
+If you are using a version manager like `asdf` that maps the `flutter` command to another binary instead of an SDK location or this extension cannot find your SDK for another reason you'll have to provide the extension with how to find your SDK.
+To do this there are a few options:
+1. If your version manager supports a `which` command like then you can set the `flutter.sdk.flutter-lookup` config option. Eg. `"flutter.sdk.flutter-lookup": "asdf which flutter"`.
+2. You can add the path where to find the SDK to the `flutter.sdk.searchPaths` config option.
+   Either specify the exact folder the SDK is installed in or a folder that contains other folders which directly have an SDK in them. *Note that not all of these folders need to have an SDK, if they don't contain one they will simply be ignored*
+3. Set the `flutter.sdk.path` config option to the exact path you want to use for your SDK.
+   If you have also set the `flutter.sdk.searchPaths` then you can use the `FlutterSdks` list (see below) to see what versions you have installed and set the config option for you. **Note that this means that the `flutter.sdk.path` option will be overriden by this list**
+
+
 ## coc-list sources
 
+- FlutterSdks
+  > `:CocList FlutterSdks`
+  Shows all the sdks that can be found by using the `searchPaths` config and the `flutter-lookup` config options and allows you to switch between them, either only for your current workspace or globally.
+  Besides those two ways to find sdks it also checks if you are using fvm and if so uses those directories to find your sdk.
+  *You can disable this using the `flutter.fvm.enabled` config option.*
+
+  You can also use this list to see what your current sdk is since it will have `(current)` behind it clearly.
+	
 - Flutter Devices: `:CocList FlutterDevices`
 - Flutter Emulators: `:CocList FlutterEmulators`
 
@@ -64,8 +84,11 @@ Features of this fork:
   > When set to true, will display the path of the selected UI component on the status bar
 - `flutter.outlineWidth` controls the default width of the flutter outline panel. default: `30`
 - `flutter.outlineIconPadding` controls The number of spaces between the icon and the item text in the outline panel. default: `0`
+- `flutter.sdk.searchPaths` the paths to search for flutter sdks, either directories where flutter is installed or directories which contain directories where flutter versions have been installed
+  eg. `/path/to/flutter` (command at `/path/to/flutter/bin/flutter`) or
+  `~/flutter_versions` (command at `~/flutter_versions/version/bin/flutter`).
 - `flutter.sdk.dart-command` dart command, leave empty should just work, default: `''`
-- `flutter.sdk.dart-lookup` command to find dart executable location, used to infer dart-sdk location, default: `''`
+- `flutter.sdk.dart-lookup` **only use this if you don't have a flutter installation but only dart** command to find dart executable location, used to infer dart-sdk location, default: `''`
 - `flutter.sdk.flutter-lookup` command to find flutter executable location, used to infer location of dart-sdk in flutter cache: `''`
 - `flutter.provider.hot-reload` Enable hot reload after save, default: `true`
   > only when there are no errors for the save file
