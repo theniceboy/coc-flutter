@@ -203,18 +203,20 @@ class DevServer extends Dispose {
 						return;
 					}
 					for (const win of wins) {
-						const b = await win.buffer;
-						const name = await b.name;
-						if (name === `output:///${devLogName}`) {
-							const lines = await buf.length;
-							const curWin = await workspace.nvim.window;
-							// do not scroll when log win get focus
-							if (win.id === curWin.id) {
-								return;
+						try {
+							const b = await win.buffer;
+							const name = await b.name;
+							if (name === `output:///${devLogName}`) {
+								const lines = await buf.length;
+								const curWin = await workspace.nvim.window;
+								// do not scroll when log win get focus
+								if (win.id === curWin.id) {
+									return;
+								}
+								win.setCursor([lines, 0]);
+								break;
 							}
-							win.setCursor([lines, 0]);
-							break;
-						}
+						} catch (e) {}
 					}
 				});
 				// FIXME: coc.nvim version v0.80.0 do not export listen function
