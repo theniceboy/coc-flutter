@@ -1,14 +1,14 @@
-import { commands, Disposable } from 'coc.nvim';
-
-import { devServer } from '../../server/dev';
-import { Dispose } from '../../util/dispose';
-import { opener } from '../../util/opener';
-import { notification } from '../../lib/notification';
-import { logger } from '../../util/logger';
-import { cmdPrefix } from '../../util/constant';
-import { devToolsServer } from '../../server/devtools';
 import { ChildProcessWithoutNullStreams } from 'child_process';
+import { commands, Disposable, workspace } from 'coc.nvim';
+import { notification } from '../../lib/notification';
+import { devServer } from '../../server/dev';
+import { devToolsServer } from '../../server/devtools';
+import { deleteCommandTitle, setCommandTitle } from '../../util';
+import { cmdPrefix } from '../../util/constant';
+import { Dispose } from '../../util/dispose';
+import { logger } from '../../util/logger';
 import { reduceSpace } from '../../util';
+import { opener } from '../../util/opener';
 
 const log = logger.getlog('dev-command');
 
@@ -92,6 +92,19 @@ export const cmds: Record<string, DCmd> = {
 		cmd: 'q',
 		desc: 'Quit server',
 	},
+	copyProfilerUrl: {
+		desc:
+			'Copy the observatory debugger and profiler web page to the system clipboard (register +)',
+		callback: (run: Dev) => {
+			run.copyProfilerUrl();
+		},
+	},
+	openProfiler: {
+		desc: 'Observatory debugger and profiler web page',
+		callback: (run: Dev) => {
+			run.openProfiler();
+		},
+	},
 	openDevToolsProfiler: {
 		desc: 'Load DevTools page in an external web browser',
 		callback: (run: Dev) => {
@@ -119,7 +132,6 @@ export const cmds: Record<string, DCmd> = {
 export class Dev extends Dispose {
 	private profilerUrl: string | undefined;
 	private cmds: Disposable[] = [];
-	private devtoolsTask: ChildProcessWithoutNullStreams | undefined;
 
 	constructor() {
 		super();
@@ -128,18 +140,18 @@ export class Dev extends Dispose {
 			this.push(commands.registerCommand(cmdId, this[`${cmd}Server`], this));
 			this.push(
 				(function () {
-					commands.titles.set(cmdId, `${cmd} flutter server`);
+					setCommandTitle(cmdId, `${cmd} flutter server`);
 					return {
 						dispose() {
-							commands.titles.delete(cmdId);
+							deleteCommandTitle(cmdId);
 						},
 					};
 				})(),
 			);
 		});
 		this.push(devServer);
-		devServer.openDevLog();
 		log('register dev command');
+		this.push(devToolsServer);
 	}
 
 	runServer(...args: string[]) {
@@ -167,11 +179,11 @@ export class Dev extends Dispose {
 		this.cmds.push(
 			...Object.keys(cmds).map((key) => {
 				const cmdId = `${cmdPrefix}.dev.${key}`;
-				commands.titles.set(cmdId, cmds[key].desc);
+				setCommandTitle(cmdId, cmds[key].desc);
 				const subscription = commands.registerCommand(cmdId, this.execCmd(cmds[key]));
 				return {
 					dispose() {
-						commands.titles.delete(cmdId);
+						deleteCommandTitle(cmdId);
 						subscription.dispose();
 					},
 				};
@@ -249,10 +261,15 @@ export class Dev extends Dispose {
 	private onStdout = (lines: string[]) => {
 		lines.forEach((line) => {
 			const m = line.match(
-				/^\s*An Observatory debugger and profiler on .* is available at:\s*https?(:\/\/127\.0\.0\.1:\d+\/.+\/)$/,
+				/^\s*An Observatory debugger and profiler on .* is available at:\s*(https?:\/\/127\.0\.0\.1:\d+\/.+\/)$/,
 			);
 			if (m) {
 				this.profilerUrl = m[1];
+				const config = workspace.getConfiguration('flutter');
+				const runDevToolsAtStartupEnabled = config.get<boolean>('runDevToolsAtStartup', false);
+				if (runDevToolsAtStartupEnabled) {
+					this.openDevToolsProfiler();
+				}
 			}
 		});
 		notification.show(this.filterInvalidLines(lines));
@@ -277,8 +294,30 @@ export class Dev extends Dispose {
 		};
 	}
 
-	get devToolsRunning(): boolean {
-		return !!this.devtoolsTask && this.devtoolsTask.stdin.writable;
+	async copyProfilerUrl() {
+		if (!this.profilerUrl) {
+			return;
+		}
+		if (devServer.state) {
+			workspace.nvim.command(`let @+='${this.profilerUrl}'`);
+			return;
+		}
+		notification.show('Flutter server is not running!');
+	}
+
+	openProfiler() {
+		if (!this.profilerUrl) {
+			return;
+		}
+		if (devServer.state) {
+			try {
+				return opener(this.profilerUrl);
+			} catch (error) {
+				log(`Open browser fail: ${error.message}\n${error.stack}`);
+				notification.show(`Open browser fail: ${error.message || error}`);
+			}
+		}
+		notification.show('Flutter server is not running!');
 	}
 
 	openDevToolsProfiler(): void {

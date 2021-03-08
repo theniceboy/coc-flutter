@@ -269,7 +269,8 @@ export class Outline extends Dispose {
 
 	async init(client: LanguageClient) {
 		const { nvim } = workspace;
-		nvim.on('notification', async (...args) => {
+
+		(nvim as any).on('notification', async (...args) => {
 			if (args[0] === 'CocAutocmd') {
 				if (args[1][0] === 'CursorMoved') {
 					const bufId = args[1][1];
@@ -312,6 +313,7 @@ export class Outline extends Dispose {
 			const win = await nvim.window;
 			await nvim.command('setlocal filetype=flutterOutline');
 			await nvim.command('set buftype=nofile');
+			await nvim.command('setlocal noswapfile');
 			await nvim.command('setlocal nomodifiable');
 			await nvim.command('setlocal winfixwidth');
 			await nvim.command('setlocal nocursorline');

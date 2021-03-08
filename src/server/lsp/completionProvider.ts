@@ -1,12 +1,14 @@
-import { CompletionContext, ProvideCompletionItemsSignature, workspace } from 'coc.nvim';
 import {
-	CompletionItem,
 	CancellationToken,
-	TextDocument,
-	Position,
-	Range,
+	CompletionContext,
+	CompletionItem,
 	CompletionList,
-} from 'vscode-languageserver-protocol';
+	Position,
+	ProvideCompletionItemsSignature,
+	Range,
+	TextDocument,
+	workspace,
+} from 'coc.nvim';
 import { getResolveCompleteItemFunc } from './resolveCompleteItem';
 
 export const completionProvider = async (

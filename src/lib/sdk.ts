@@ -1,11 +1,10 @@
-import os, { homedir } from 'os';
-import { join, dirname } from 'path';
-import { Uri, workspace, WorkspaceConfiguration } from 'coc.nvim';
-import which from 'which';
-import { logger } from '../util/logger';
-import { exists, getRealPath, execCommand, readDir } from '../util/fs';
 import { ExecOptions } from 'child_process';
-import { promises } from 'fs';
+import { Uri, workspace, WorkspaceConfiguration } from 'coc.nvim';
+import os, { homedir } from 'os';
+import { dirname, join } from 'path';
+import which from 'which';
+import { execCommand, exists, getRealPath, readDir, readFile } from '../util/fs';
+import { logger } from '../util/logger';
 
 const log = logger.getlog('sdk');
 
@@ -145,11 +144,10 @@ class FlutterSDK {
 
 	private async initDartSdkHomeFromLocalFvm() {
 		try {
-			const fvmLocation = join(
-				Uri.parse(workspace.workspaceFolder.uri).fsPath,
-				'.fvm',
-				'flutter_sdk',
-			);
+			const workspaceFolder = workspace.workspaceFolder
+				? Uri.parse(workspace.workspaceFolder.uri).fsPath
+				: workspace.cwd;
+			const fvmLocation = join(workspaceFolder, '.fvm', 'flutter_sdk');
 			if (await exists(fvmLocation)) {
 				log('Found local fvm sdk');
 				this._sdkHome = fvmLocation;
@@ -163,7 +161,11 @@ class FlutterSDK {
 	}
 
 	private async initFlutterCommandsFromSdkHome() {
-		this._flutterCommand = join(this._sdkHome, 'bin', 'flutter');
+		this._flutterCommand = join(
+			this._sdkHome,
+			'bin',
+			os.platform() === 'win32' ? 'flutter.bat' : 'flutter',
+		);
 		log(`flutter command path => ${this.flutterCommand}`);
 		if (!(await exists(this._flutterCommand))) {
 			log('flutter command path does not exist');
@@ -266,7 +268,10 @@ class FlutterSDK {
 		if (flutterPath) {
 			flutterPath = await getRealPath(flutterPath);
 			flutterPath = flutterPath.trim();
-			if (flutterPath.endsWith(join('bin', 'flutter'))) {
+			if (
+				flutterPath.toLowerCase().endsWith(join('bin', 'flutter')) ||
+				flutterPath.toLowerCase().endsWith(join('bin', 'flutter.bat'))
+			) {
 				flutterPath = join(flutterPath, '..', '..');
 			}
 			const isFlutterDir = await exists(join(flutterPath, 'bin', 'flutter'));
@@ -338,7 +343,7 @@ class FlutterSDK {
 			try {
 				const fvmSettingsFileExists = await exists(settingsPath);
 				if (fvmSettingsFileExists) {
-					const settingsRaw = await promises.readFile(settingsPath);
+					const settingsRaw = await readFile(settingsPath);
 					const settings = JSON.parse(settingsRaw.toString());
 					if (typeof settings.cachePath == 'string' && settings.cachePath.trim() != '') {
 						fvmCachePath = settings.cachePath;

@@ -2,7 +2,7 @@ import { commands, IList, ListAction, ListItem, workspace } from 'coc.nvim';
 import colors from 'colors/safe';
 
 import { flutterSDK, FlutterSdk } from '../lib/sdk';
-import { execCommand, exists, getRealPath, readDir } from '../util/fs';
+import { execCommand } from '../util/fs';
 import { logger } from '../util/logger';
 import { LspServer } from '../server/lsp';
 
